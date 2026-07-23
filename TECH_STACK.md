@@ -6,6 +6,8 @@
 
 **Vite 5.4.10** - Build tool and dev server. Configured with:
 - Relative base path (`./`) for intranet deployment flexibility
+- Tenant-aware build: `TENANT={slug} vite build` reads `tenants/{slug}/tenant.config.json` and inlines it as a global `__TENANT_CONFIG__` constant
+- Output to `dist/{slug}/` so multiple tenants can coexist
 - Dev server on port 5173 with Docker host support
 - Preview server on port 4173
 - ES2022 target for modern JavaScript features
@@ -16,16 +18,43 @@
 - React JSX transform
 - Bundler module resolution
 - Strict type checking including no unused locals/parameters
+- JSON module resolution (for tenant config files)
+
+## Multi-Tenant Architecture
+
+The codebase is structured as a **single codebase, multi-tenant deployment**:
+
+```
+src/                     # Shared core engine (zero tenant-specific code)
+  tenant/config.ts       # Typed accessor for build-time injected config
+  components/            # All UI components (generic, config-driven)
+  hooks/                 # React hooks (data loading, state management)
+  lib/                   # Core logic (graph building, validation, layout)
+tenants/{slug}/          # Per-client configuration only
+  tenant.config.json     # Branding, data source, schema mapping
+```
+
+**Build-time tenant injection**: `vite.config.ts` reads the tenant config and
+inlines it as a global `__TENANT_CONFIG__` constant via Vite's `define` option.
+Each tenant's bundle has its own config baked in — no runtime fetch, no runtime
+branching on tenant identity.
+
+**Zero data custody**: Each tenant's browser fetches their own workbook directly
+from their own data source URL. The deployed static bundle never proxies or
+stores tenant data. If a client's data source requires an API key, it is
+supplied and used entirely client-side (held in browser memory/sessionStorage
+on the client's own network, never sent to any server controlled by the Licensor).
 
 ## Data Processing Layer
 
-**XLSX (SheetJS) 0.18.5** - Parses the Excel workbook (`CeNSE_Master_Ecosystem_Dataset.xlsx`) containing faculty, platforms, verticals, and collaboration data.
+**XLSX (SheetJS) 0.18.5** - Parses the Excel workbook specified by the tenant
+config's `dataSource.path`.
 
 **Data Pipeline Flow:**
-1. [useWorkbookData](cci:1://file:///Users/home/DEV/tools/relexplorer/src/hooks/useWorkbookData.ts:15:0-57:1) hook fetches the Excel file from `/public/data/`
+1. [useWorkbookData](src/hooks/useWorkbookData.ts) hook fetches the workbook from the tenant-config-specified data source
 2. `loadWorkbook` parses the Excel into raw JavaScript objects
-3. `validateWorkbook` checks data quality and reports issues
-4. [buildGraph](cci:1://file:///Users/home/DEV/tools/relexplorer/src/lib/buildGraph.ts:12:0-171:1) transforms validated data into a canonical graph model with nodes (faculty, platforms, verticals) and edges (affiliations, collaborations)
+3. `validateWorkbook` checks data quality against the schema from the tenant config (not hardcoded)
+4. [buildGraph](src/lib/buildGraph.ts) transforms validated data into a canonical graph model with nodes (faculty, platforms, verticals) and edges (affiliations, collaborations)
 
 ## Graph Visualization
 
@@ -35,11 +64,14 @@
 - Node/edge styling and theming
 - Event handling (click, hover, keyboard navigation)
 
-**Cytoscape-fcose 2.2.0** - Fast layout algorithm that organizes nodes into aspect-aware bands (verticals top, faculty middle, platforms bottom) to prevent edge crossings and ensure all nodes fit without scrolling.
+**Cytoscape-fcose 2.2.0** - Fast layout algorithm that organizes nodes into
+aspect-aware bands (verticals top, faculty middle, platforms bottom) to
+prevent edge crossings and ensure all nodes fit without scrolling.
 
 **Cytoscape-svg 0.4.0** - Enables SVG export functionality for the graph.
 
-**3D Force Graph 1.80.0** - Alternative 3D globe renderer (via `GlobeCanvas` component) using Three.js for spherical network visualization.
+**3D Force Graph 1.80.0** - Alternative 3D globe renderer (via `GlobeCanvas`
+component) using Three.js for spherical network visualization.
 
 **Three.js 0.185.1** - 3D rendering engine used by the globe view for WebGL-based visualization.
 
@@ -53,9 +85,8 @@
 ## State Management Architecture
 
 **Custom React Hooks** - No external state library; uses React's built-in hooks:
-
-- [useWorkbookData](cci:1://file:///Users/home/DEV/tools/relexplorer/src/hooks/useWorkbookData.ts:15:0-57:1) - Manages data loading lifecycle (idle → loading → ready/error) with cancellation token pattern to prevent race conditions
-- [useGraphState](cci:1://file:///Users/home/DEV/tools/relexplorer/src/hooks/useGraphState.ts:50:0-172:1) - Centralized UI state for filters, search, drawer, view mode, and focus mode. Computes visible node/edge sets based on current filters
+- [useWorkbookData](src/hooks/useWorkbookData.ts) - Manages data loading lifecycle (idle → loading → ready/error) with cancellation token pattern to prevent race conditions. Reads the data source path from the tenant config.
+- [useGraphState](src/hooks/useGraphState.ts) - Centralized UI state for filters, search, drawer, view mode, and focus mode. Computes visible node/edge sets based on current filters.
 - `useReducedMotion` - Respects user's motion preferences for accessibility
 
 ## Component Architecture
@@ -63,9 +94,13 @@
 **App.tsx** - Root component orchestrating:
 - Data loading and error handling
 - Theme switching (dark/light mode)
-- Export functionality (PNG/SVG)
+- Export functionality (PNG/SVG) — uses the tenant config's `exportFilenameBase`
 - Live region announcements for screen readers
 - Integration of all sub-components
+
+**AppHeader.tsx** - Generic header component that reads all branding (title,
+logo, color accent) from the tenant config. No hardcoded client-specific
+references.
 
 **GraphCanvas.tsx** - 2D Cytoscape renderer with:
 - Aspect-aware band layout
@@ -77,7 +112,8 @@
 
 **GlobeCanvas.tsx** - 3D spherical view using 3D Force Graph
 
-**ControlPanel.tsx** - Filter controls for toggling platforms, verticals, collaborations, and sector selection
+**ControlPanel.tsx** - Filter controls for toggling platforms, verticals,
+collaborations, and sector selection
 
 **DetailDrawer.tsx** - Sidebar showing node details with ego network visualization
 
@@ -85,10 +121,14 @@
 
 ## Key Integration Points
 
-1. **Data Flow**: Excel → XLSX parser → validation → graph model → visual renderers
-2. **State Flow**: User actions → [useGraphState](cci:1://file:///Users/home/DEV/tools/relexplorer/src/hooks/useGraphState.ts:50:0-172:1) → filter computation → visible sets → renderer updates
+1. **Data Flow**: Tenant config → Excel → XLSX parser → validation (schema from config) → graph model → visual renderers
+2. **State Flow**: User actions → [useGraphState](src/hooks/useGraphState.ts) → filter computation → visible sets → renderer updates
 3. **Theme System**: CSS custom properties with data attributes for dark/light switching
 4. **Accessibility**: Live regions announce state changes; keyboard navigation works in both visual and accessible views
-5. **Export**: Cytoscape instance exposed via ref to export functions that generate PNG/SVG downloads
+5. **Export**: Cytoscape instance exposed via ref to export functions that generate PNG/SVG downloads with tenant-config-specified filenames
 
-The architecture prioritizes separation of concerns: data processing, UI state, and rendering are distinct layers, making it easy to add new visualizations or modify the data pipeline without affecting other components.
+The architecture prioritizes separation of concerns: data processing, UI state,
+and rendering are distinct layers, making it easy to add new visualizations or
+modify the data pipeline without affecting other components. The core engine
+contains zero tenant-specific code — all client-specific configuration is
+isolated in `tenants/{slug}/tenant.config.json`.
