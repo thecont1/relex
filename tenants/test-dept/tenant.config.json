@@ -1,0 +1,45 @@
+{
+  "tenantId": "test-dept",
+  "name": "Test Department Network Explorer",
+  "description": "A fictional test department instance to validate the multi-tenant architecture. Uses the same core engine with a different data source and branding.",
+  "branding": {
+    "logo": {
+      "src": "/assets/test-dept/logo.png",
+      "alt": "Test Department"
+    },
+    "title": "TEST DEPARTMENT",
+    "colorAccent": "#1e40af"
+  },
+  "dataSource": {
+    "type": "local",
+    "path": "./data/test_dept_dataset.xlsx"
+  },
+  "schema": {
+    "sheets": {
+      "Platforms": ["Platform ID", "Platform", "Description", "Sector"],
+      "Faculty": ["Faculty ID", "Faculty"],
+      "Faculty_Platforms": ["Faculty", "Platform"],
+      "Research_Verticals": ["Vertical ID", "Research Vertical", "Sector"],
+      "Faculty_Verticals": ["Faculty", "Research Vertical"],
+      "Collaborations": ["Faculty A", "Faculty B", "Project/Topic"]
+    },
+    "entityTypes": {
+      "faculty": { "label": "Faculty", "searchable": true },
+      "platform": { "label": "Platform", "searchable": false },
+      "vertical": { "label": "Research Vertical", "searchable": false }
+    },
+    "edgeTypes": {
+      "faculty-platform": { "label": "Faculty-Platform" },
+      "faculty-vertical": { "label": "Faculty-Vertical" },
+      "faculty-faculty": { "label": "Collaborations" }
+    }
+  },
+  "features": {
+    "defaultShowPlatforms": true,
+    "defaultShowVerticals": true,
+    "defaultShowCollaborations": true,
+    "defaultShowRelationships": true,
+    "exportFilenameBase": "test-dept-network"
+  },
+  "coreVersion": "1.0.0"
+}

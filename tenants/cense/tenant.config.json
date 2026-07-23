@@ -1,0 +1,45 @@
+{
+  "tenantId": "cense",
+  "name": "CeNSE Interactive Ecosystem Network Diagram",
+  "description": "An accessible visualization of faculty, research platforms, verticals, and collaborations at the Centre for Nano Science and Engineering.",
+  "branding": {
+    "logo": {
+      "src": "/assets/cense/cense-iisc-logo.png",
+      "alt": "CeNSE · IISc"
+    },
+    "title": "CENTRE FOR NANOSCIENCE AND ENGINEERING",
+    "colorAccent": "#ed2229"
+  },
+  "dataSource": {
+    "type": "local",
+    "path": "./data/CeNSE_Master_Ecosystem_Dataset.xlsx"
+  },
+  "schema": {
+    "sheets": {
+      "Platforms": ["Platform ID", "Platform", "Description", "Sector"],
+      "Faculty": ["Faculty ID", "Faculty"],
+      "Faculty_Platforms": ["Faculty", "Platform"],
+      "Research_Verticals": ["Vertical ID", "Research Vertical", "Sector"],
+      "Faculty_Verticals": ["Faculty", "Research Vertical"],
+      "Collaborations": ["Faculty A", "Faculty B", "Project/Topic"]
+    },
+    "entityTypes": {
+      "faculty": { "label": "Faculty", "searchable": true },
+      "platform": { "label": "Platform", "searchable": false },
+      "vertical": { "label": "Research Vertical", "searchable": false }
+    },
+    "edgeTypes": {
+      "faculty-platform": { "label": "Faculty-Platform" },
+      "faculty-vertical": { "label": "Faculty-Vertical" },
+      "faculty-faculty": { "label": "Collaborations" }
+    }
+  },
+  "features": {
+    "defaultShowPlatforms": true,
+    "defaultShowVerticals": true,
+    "defaultShowCollaborations": true,
+    "defaultShowRelationships": true,
+    "exportFilenameBase": "cense-ecosystem"
+  },
+  "coreVersion": "1.0.0"
+}
