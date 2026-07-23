@@ -1,4 +1,3 @@
-import { SearchBox } from './SearchBox';
 import { SectorFilter } from './SectorFilter';
 import { Legend } from './Legend';
 import { ViewSwitcher } from './ViewSwitcher';
@@ -7,10 +6,6 @@ import type { GraphFilters, GraphModel, RenderMode, ViewMode } from '../lib/type
 interface Props {
   graph: GraphModel;
   filters: GraphFilters;
-  searchQuery: string;
-  onSearchQueryChange: (q: string) => void;
-  onSearchFocusNode: (id: string) => void;
-  onClearSearch: () => void;
   onToggleSector: (s: string) => void;
   onClearSectors: () => void;
   renderMode: RenderMode;
@@ -20,14 +15,13 @@ interface Props {
 }
 
 /**
- * Sidebar hosts the secondary controls. The View switcher now lives here
- * (moved from the header) so all the "what am I looking at" choices sit
- * together. Order top-to-bottom:
+ * Sidebar hosts the secondary controls. Search has moved to the top
+ * header (the official app search), so this panel now only carries the
+ * View switcher, sector filter, and legend. Order top-to-bottom:
  *
  *   1. View     — Flat | Globe | Accessible (rendering mode)
- *   2. Search   — faculty name filter
- *   3. Sectors  — clickable colored chips, double as the sector key
- *   4. Legend   — node shapes only (sectors are above)
+ *   2. Sectors  — clickable colored chips, double as the sector key
+ *   3. Legend   — node shapes only (sectors are above)
  */
 export function ControlPanel(props: Props) {
   return (
@@ -41,14 +35,6 @@ export function ControlPanel(props: Props) {
           onViewChange={props.onViewChange}
         />
       </div>
-
-      <SearchBox
-        graph={props.graph}
-        query={props.searchQuery}
-        onQueryChange={props.onSearchQueryChange}
-        onFocusNode={props.onSearchFocusNode}
-        onClearSearch={props.onClearSearch}
-      />
 
       <SectorFilter
         sectors={props.graph.sectors}

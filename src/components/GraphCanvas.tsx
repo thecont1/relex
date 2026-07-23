@@ -1655,18 +1655,32 @@ function alignBands(cy: cytoscape.Core, metrics: ContainerMetrics) {
 
   cy.batch(() => {
     if (wide) {
-      // Verticals: distribute evenly along the left edge of the canvas.
-      // X is anchored at fxMin - radius (well clear of the faculty cluster).
-      // Y slots are spread evenly across the full canvas height.
-      const vYs = distributeY(verticals.length, fMinY, fMaxY);
+      // Light curve: verticals trace a gentle concave arc along the left
+      // edge, platforms mirror on the right. Bulge is small (15% of the
+      // faculty spread) so the centre stays clear for faculty growth —
+      // the curve is aesthetic, not architectural.
+      const bulge = (fxMax - fxMin) * 0.15;
+
+      // Verticals: top-of-left-edge → bottom-of-left-edge with a small
+      // outward bow (control point pulled further left than the endpoints).
+      const vT = distribute(verticals.length);
+      const vP0x = fxMin - radius, vP0y = fMinY;
+      const vP1x = fxMin - radius - bulge, vP1y = (fMinY + fMaxY) / 2;
+      const vP2x = fxMin - radius, vP2y = fMaxY;
       verticals.forEach((n, i) => {
-        n.position({ x: fxMin - radius, y: vYs[i] });
+        const p = bezier(vT[i], vP0x, vP0y, vP1x, vP1y, vP2x, vP2y);
+        n.position(p);
       });
 
-      // Platforms: mirror on the right edge.
-      const pYs = distributeY(platforms.length, fMinY, fMaxY);
+      // Platforms: top-of-right-edge → bottom-of-right-edge with the
+      // mirror bow.
+      const pT = distribute(platforms.length);
+      const pP0x = fxMax + radius, pP0y = fMinY;
+      const pP1x = fxMax + radius + bulge, pP1y = (fMinY + fMaxY) / 2;
+      const pP2x = fxMax + radius, pP2y = fMaxY;
       platforms.forEach((n, i) => {
-        n.position({ x: fxMax + radius, y: pYs[i] });
+        const p = bezier(pT[i], pP0x, pP0y, pP1x, pP1y, pP2x, pP2y);
+        n.position(p);
       });
     } else {
       // Tall container: rotate arcs 90° (verticals on left, platforms on right).
@@ -1690,14 +1704,6 @@ function alignBands(cy: cytoscape.Core, metrics: ContainerMetrics) {
     }
     return undefined;
   });
-}
-
-/** Evenly distribute `count` slots in [yMin, yMax]. Falls back to midpoint if 1; empty if 0. */
-function distributeY(count: number, yMin: number, yMax: number): number[] {
-  if (count === 0) return [];
-  if (count === 1) return [(yMin + yMax) / 2];
-  const step = (yMax - yMin) / (count - 1);
-  return Array.from({ length: count }, (_, i) => yMin + i * step);
 }
 
 /**

@@ -4,27 +4,38 @@ import { useGraphState } from '../hooks/useGraphState';
 import { GraphCanvas, type GraphCanvasHandle } from '../components/GraphCanvas';
 import { GlobeCanvas, type GlobeCanvasHandle } from '../components/GlobeCanvas';
 import { ControlPanel } from '../components/ControlPanel';
-import { StatsBar } from '../components/StatsBar';
 import { DetailDrawer } from '../components/DetailDrawer';
 import { AccessibleView } from '../components/AccessibleView';
 import { ErrorBanner, WarningBanner } from '../components/WarningBanner';
 import { FocusModeToggle } from '../components/FocusModeToggle';
+import { CenseHeader } from '../components/CenseHeader';
 import { exportPng, exportSvg } from '../lib/exportGraph';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { fadeIn } from '../lib/motion';
-import type { ThemeMode } from '../lib/types';
+import type { GraphModel, ThemeMode } from '../lib/types';
 
-// The user calibrated the "full size" look at what the old control called
-// 125%. We now treat that as the 100% baseline: the state below is a DISPLAY
-// fraction (1.0 === 100%) and is multiplied by SCALE_MODEL_BASE before it
-// reaches the renderers, which still operate in their validated model-scale
-// envelope. Display 100% -> model 1.25 (the beloved size); display 60% ->
-// model 0.75; display 150% -> model 1.875. The renderers clamp to
-// [0.75, 1.875] to cover the full display range.
 const SCALE_MODEL_BASE = 1.25;
 const NETWORK_SCALE_MIN = 0.6;
 const NETWORK_SCALE_MAX = 1.5;
 const NETWORK_SCALE_STEP = 0.1;
+
+/**
+ * Stub graph model used in the error state. The header still renders
+ * (so the user can hit Reset to retry the workbook fetch), but the
+ * dataset is empty so the stats row reads zero and the search dropdown
+ * never shows matches.
+ */
+const emptyGraphModel: GraphModel = {
+  nodes: [],
+  edges: [],
+  sectors: [],
+  counts: {
+    faculty: 0,
+    platforms: 0,
+    verticals: 0,
+    edges: { 'faculty-faculty': 0, 'faculty-platform': 0, 'faculty-vertical': 0 },
+  },
+};
 
 export function App() {
   const { state, refresh } = useWorkbookData();
@@ -155,13 +166,20 @@ export function App() {
   if (state.phase === 'error') {
     return (
       <div className="app-shell" ref={shellRef}>
-        <Header
+        <CenseHeader
           refreshedAt={null}
           onReset={handleReset}
           resetting={false}
           onRefresh={handleSoftReset}
           onExportPng={() => {}}
           onExportSvg={() => {}}
+          searchQuery=""
+          onSearch={() => {}}
+          onSearchFocusNode={() => {}}
+          onClearSearch={() => {}}
+          graph={emptyGraphModel}
+          visibleNodeIds={new Set()}
+          visibleEdgeIds={new Set()}
         />
         <main className="app-body" style={{ gridTemplateColumns: '1fr' }}>
           <div style={{ padding: 'var(--sp-5)' }}>
@@ -176,28 +194,31 @@ export function App() {
   return (
     <div className="app-shell" data-theme={theme} ref={shellRef}>
       <a className="skip-link" href="#main">Skip to main content</a>
-      <Header
+      <CenseHeader
         refreshedAt={state.refreshedAt}
         onReset={handleReset}
         resetting={resetting}
         onRefresh={handleSoftReset}
         onExportPng={onExportPng}
         onExportSvg={onExportSvg}
+        searchQuery={gs.search.query}
+        onSearch={(q) => {
+          gs.setSearchQuery(q);
+          if (q) gs.setSearchFocus(null);
+        }}
+        onSearchFocusNode={(id) => {
+          gs.setSearchFocus(id);
+          setLiveMessage(`Focused ${state.graph.nodes.find(n => n.id === id)?.label ?? 'faculty member'}.`);
+        }}
+        onClearSearch={gs.clearSearch}
+        graph={state.graph}
+        visibleNodeIds={gs.visibleNodeIds}
+        visibleEdgeIds={gs.visibleEdgeIds}
       />
       <main className="app-body" id="main">
         <ControlPanel
           graph={state.graph}
           filters={gs.filters}
-          searchQuery={gs.search.query}
-          onSearchQueryChange={(q) => {
-            gs.setSearchQuery(q);
-            if (q) gs.setSearchFocus(null);
-          }}
-          onSearchFocusNode={(id) => {
-            gs.setSearchFocus(id);
-            setLiveMessage(`Focused ${state.graph.nodes.find(n => n.id === id)?.label ?? 'faculty member'}.`);
-          }}
-          onClearSearch={gs.clearSearch}
           onToggleSector={gs.toggleSector}
           onClearSectors={gs.clearSectors}
           renderMode={gs.renderMode}
@@ -215,11 +236,6 @@ export function App() {
 
           {gs.view === 'visual' ? (
             <>
-              <StatsBar
-                graph={state.graph}
-                visibleNodeIds={gs.visibleNodeIds}
-                visibleEdgeIds={gs.visibleEdgeIds}
-              />
               <div className="cy-stage">
                 {gs.renderMode === 'globe' ? (
                   <GlobeCanvas
@@ -297,77 +313,6 @@ export function App() {
         {liveMessage}
       </div>
     </div>
-  );
-}
-
-function Header({
-  refreshedAt,
-  onReset,
-  resetting,
-  onRefresh,
-  onExportPng,
-  onExportSvg,
-}: {
-  refreshedAt: string | null;
-  /** Re-fetch the workbook from disk — equivalent to a browser page refresh. */
-  onReset: () => void;
-  /** True while the workbook re-fetch is in flight (button shows busy state). */
-  resetting: boolean;
-  /** Soft reset: clear filters, search, focus, drawer — keeps the loaded data. */
-  onRefresh: () => void;
-  onExportPng: () => void;
-  onExportSvg: () => void;
-}) {
-  return (
-    <header className="app-header">
-      <div>
-        <h1>CeNSE Interactive Ecosystem Network</h1>
-        <span className="subtitle">
-          Centre for Nano Science and Engineering · IISC
-          {refreshedAt && (
-            <> · Data refreshed {formatTime(refreshedAt)}</>
-          )}
-        </span>
-      </div>
-      <div className="btn-row">
-        <button
-          type="button"
-          className="btn"
-          onClick={onReset}
-          disabled={resetting}
-          aria-label="Re-fetch the workbook from disk"
-          title="Re-fetch the workbook from disk"
-        >
-          {resetting ? 'Resetting…' : 'Reset'}
-        </button>
-        <button
-          type="button"
-          className="btn"
-          onClick={onRefresh}
-          aria-label="Clear filters, search, and selection"
-          title="Clear filters, search, and selection"
-        >
-          Refresh
-        </button>
-        <span className="header-group-label" aria-hidden="true">Export</span>
-        <button
-          type="button"
-          className="btn"
-          onClick={onExportPng}
-          aria-label="Export current view as PNG"
-        >
-          PNG
-        </button>
-        <button
-          type="button"
-          className="btn"
-          onClick={onExportSvg}
-          aria-label="Export current view as SVG"
-        >
-          SVG
-        </button>
-      </div>
-    </header>
   );
 }
 
@@ -459,11 +404,6 @@ function MoonIcon() {
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   );
-}
-
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleString();
 }
 
 function filenameStamp(base: string, ext: string): string {
