@@ -48,6 +48,10 @@ interface Props {
   graph: GraphModel;
   filters: GraphFilters;
   searchFocusId: string | null;
+  /** External highlight/pin target (e.g. from the detail drawer). When this
+   * changes to a new node id, the globe pins and highlights that node's ego
+   * network — the same visual as clicking the node directly. */
+  highlightNodeId: string | null;
   theme: ThemeMode;
   networkScale: number;
   onNodeClick: (nodeId: string) => void;
@@ -57,7 +61,7 @@ interface Props {
 const SPHERE_RADIUS = 300;
 
 export const GlobeCanvas = forwardRef<GlobeCanvasHandle, Props>(function GlobeCanvas(
-  { graph, filters, searchFocusId, theme, networkScale, onNodeClick },
+  { graph, filters, searchFocusId, highlightNodeId, theme, networkScale, onNodeClick },
   ref
 ) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -344,6 +348,24 @@ export const GlobeCanvas = forwardRef<GlobeCanvasHandle, Props>(function GlobeCa
     fitCameraToGraph(fg);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchFocusId, graph]);
+
+  // ---------- react to external highlight (e.g. drawer selection) ----------
+  // When a node is selected from the detail drawer, we pin+highlight it in
+  // the globe — the same visual as clicking the node directly.
+  const prevHighlightRef = useRef<string | null>(null);
+  useEffect(() => {
+    const fg = fgRef.current;
+    const controller = controllerRef.current;
+    if (!fg || !controller) return;
+    if (highlightNodeId && highlightNodeId !== prevHighlightRef.current) {
+      const focusNode = fg.graphData().nodes.find((n: any) => n.id === highlightNodeId);
+      if (focusNode) {
+        controller.pin(highlightNodeId);
+      }
+    }
+    prevHighlightRef.current = highlightNodeId;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [highlightNodeId, graph]);
 
   useImperativeHandle(ref, () => ({
     fit: () => fitCameraToGraph(fgRef.current),

@@ -54,9 +54,13 @@ export function App() {
   // load completes.
   const [resetting, setResetting] = useState(false);
   const [theme, setTheme] = useState<ThemeMode>('dark');
+  // highlightNodeId drives an external pin+highlight in the graph when a node
+  // is selected from the detail drawer (sidebar). Mirrors the click-on-node
+  // visual so the graph always reflects the currently-open detail.
+  const [highlightNodeId, setHighlightNodeId] = useState<string | null>(null);
   // Display fraction: 1.0 === 100% (the size the user calibrated). Multiplied
   // by SCALE_MODEL_BASE before it reaches the renderers.
-  const [networkScale, setNetworkScale] = useState(1);
+  const [networkScale, setNetworkScale] = useState(1.3);
   const modelScale = networkScale * SCALE_MODEL_BASE;
 
   const increaseNetworkScale = useCallback(() => {
@@ -73,6 +77,13 @@ export function App() {
     }
   }, [resetting, state.phase]);
 
+  // Clear highlight when the graph data changes (e.g. after a workbook re-fetch)
+  // so a stale pin can't linger over a node that may no longer exist.
+  useEffect(() => {
+    setHighlightNodeId(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.phase === 'ready' ? state.graph : null]);
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     return () => {
@@ -87,6 +98,7 @@ export function App() {
   // explicitly here so the behavior is observably equivalent.
   const handleReset = useCallback(() => {
     setResetting(true);
+    setHighlightNodeId(null);
     setLiveMessage('Resetting workbook…');
     gs.softReset();
     refresh();
@@ -98,6 +110,7 @@ export function App() {
   // clean view of the current data.
   const handleSoftReset = useCallback(() => {
     gs.softReset();
+    setHighlightNodeId(null);
     setLiveMessage('Filters and selection cleared.');
   }, [gs]);
 
@@ -208,9 +221,10 @@ export function App() {
         }}
         onSearchFocusNode={(id) => {
           gs.setSearchFocus(id);
+          setHighlightNodeId(id);
           setLiveMessage(`Focused ${state.graph.nodes.find(n => n.id === id)?.label ?? 'faculty member'}.`);
         }}
-        onClearSearch={gs.clearSearch}
+        onClearSearch={() => { gs.clearSearch(); setHighlightNodeId(null); }}
         graph={state.graph}
         visibleNodeIds={gs.visibleNodeIds}
         visibleEdgeIds={gs.visibleEdgeIds}
@@ -243,9 +257,10 @@ export function App() {
                     graph={state.graph}
                     filters={gs.filters}
                     searchFocusId={gs.search.focusId}
+                    highlightNodeId={highlightNodeId}
                     theme={theme}
                     networkScale={modelScale}
-                    onNodeClick={(id) => gs.openDrawer(id)}
+                    onNodeClick={(id) => { gs.openDrawer(id); setHighlightNodeId(id); }}
                   />
                 ) : (
                   <GraphCanvas
@@ -253,17 +268,21 @@ export function App() {
                     graph={state.graph}
                     filters={gs.filters}
                     searchFocusId={gs.search.focusId}
+                    highlightNodeId={highlightNodeId}
                     theme={theme}
                     networkScale={modelScale}
-                    onNodeClick={(id) => gs.openDrawer(id)}
+                    onNodeClick={(id) => { gs.openDrawer(id); setHighlightNodeId(id); }}
                   />
                 )}
                 <DetailDrawer
                   graph={state.graph}
                   nodeId={gs.drawer.nodeId}
                   open={gs.drawer.open}
-                  onClose={() => { gs.closeDrawer(); setLiveMessage('Closed detail drawer.'); }}
-                  onSelectNode={(id) => gs.openDrawer(id)}
+                  onClose={() => { gs.closeDrawer(); setHighlightNodeId(null); setLiveMessage('Closed detail drawer.'); }}
+                  onSelectNode={(id) => {
+                    gs.openDrawer(id);
+                    setHighlightNodeId(id);
+                  }}
                 />
               </div>
             </>
@@ -271,7 +290,7 @@ export function App() {
             <AccessibleView
               graph={state.graph}
               filters={gs.filters}
-              onSelectNode={(id) => gs.openDrawer(id)}
+              onSelectNode={(id) => { gs.openDrawer(id); setHighlightNodeId(id); }}
             />
           )}
         </section>

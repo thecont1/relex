@@ -88,6 +88,11 @@ interface Props {
   graph: GraphModel;
   filters: GraphFilters;
   searchFocusId: string | null;
+  /** External highlight/pin target (e.g. from the detail drawer). When this
+   * changes to a new node id, the graph pins and highlights that node's ego
+   * network — the same visual as clicking the node directly. Does not clear
+   * the pin when set to null (use searchFocusId for that). */
+  highlightNodeId: string | null;
   theme: ThemeMode;
   networkScale: number;
   onNodeClick: (nodeId: string) => void;
@@ -105,7 +110,7 @@ interface ContainerMetrics {
 }
 
 export const GraphCanvas = forwardRef<GraphCanvasHandle, Props>(function GraphCanvas(
-  { graph, filters, searchFocusId, theme, networkScale, onNodeClick },
+  { graph, filters, searchFocusId, highlightNodeId, theme, networkScale, onNodeClick },
   ref
 ) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -423,6 +428,25 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, Props>(function GraphCa
     fitToContainer(cy, metrics);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchFocusId, graph, metrics]);
+
+  // ---------- react to external highlight (e.g. drawer selection) ----------
+  // When a node is selected from the detail drawer, we pin+highlight it in
+  // the graph — the same visual as clicking the node directly. We only act
+  // when the id actually changes to avoid re-pinning on every render.
+  const prevHighlightRef = useRef<string | null>(null);
+  useEffect(() => {
+    const cy = cyRef.current;
+    const controller = controllerRef.current;
+    if (!cy || !controller) return;
+    if (highlightNodeId && highlightNodeId !== prevHighlightRef.current) {
+      const node = cy.getElementById(highlightNodeId);
+      if (node.nonempty()) {
+        controller.pin(highlightNodeId);
+      }
+    }
+    prevHighlightRef.current = highlightNodeId;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [highlightNodeId, graph]);
 
   // ---------- imperative handle ----------
   useImperativeHandle(ref, () => ({
