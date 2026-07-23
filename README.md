@@ -1,10 +1,8 @@
-# CeNSE Interactive Ecosystem Network Diagram
+# relex: The Interactive Network Relationship Explorer
 
-A browser-based, accessible visualization of the CeNSE department as an interactive
-network of faculty, research platforms, research verticals, and collaborations.
+A browser-based, accessible visualization tool for exploring organizational networks as interactive graphs. Designed for departments, research groups, or any ecosystem that can be modeled as nodes (people, platforms, domains) and their relationships.
 
-Built for the intranet: no backend, no database, no admin tooling. The
-workbook is the only editable source of truth.
+Built for intranet deployment: no backend, no database, no admin tooling. The data workbook is the only editable source of truth.
 
 ## Quick start
 
@@ -19,18 +17,15 @@ Node ≥ 20 and Bun ≥ 1.3 are required.
 
 ## How to update the data
 
-1. Edit `public/data/CeNSE_Master_Ecosystem_Dataset.xlsx` in Excel / Numbers /
-   LibreOffice / Google Sheets.
-2. Drop the updated file in place. The file path is hard-coded as
-   `./data/CeNSE_Master_Ecosystem_Dataset.xlsx` and is fetched on every page
-   load (cache-busted). No redeploy is required.
-3. Users can also click **Refresh data** in the app to re-fetch without
-   reloading the page.
+1. Edit the Excel workbook in `public/data/` using Excel / Numbers / LibreOffice / Google Sheets.
+2. Drop the updated file in place. The workbook is fetched on every page load (cache-busted). No redeploy is required.
+3. Users can also click **Refresh data** in the app to re-fetch without reloading the page.
 
 ## Required workbook schema
 
-The workbook is validated on load. Sheet names and column names must match
-exactly. Mismatches are surfaced as a fatal error in the UI.
+The workbook is validated on load. Sheet names and column names must match exactly. Mismatches are surfaced as a fatal error in the UI.
+
+This schema was designed for a university research centre's ecosystem (faculty, platforms, research verticals, collaborations). The structure can be customized to model any network or ecosystem by adapting the sheet names and columns to your domain.
 
 | Sheet                | Required columns                              |
 |----------------------|-----------------------------------------------|
@@ -41,75 +36,32 @@ exactly. Mismatches are surfaced as a fatal error in the UI.
 | `Faculty_Verticals`  | `Faculty`, `Research Vertical`                |
 | `Collaborations`     | `Faculty A`, `Faculty B`, `Project/Topic`     |
 
-Non-fatal warnings are surfaced for blank sectors, unknown references in
-relationship sheets, duplicate rows, and malformed collaboration rows.
+Non-fatal warnings are surfaced for blank sectors, unknown references in relationship sheets, duplicate rows, and malformed collaboration rows.
 
 ## Default view choice (and justification)
 
-First load shows **faculty + research verticals + faculty–faculty collaboration
-edges**. Platforms are off by default but one click reveals them.
+First load shows **people + domains + person–person collaboration edges**. Infrastructure/platform nodes are off by default but one click reveals them.
 
-Why: the narrative of the CeNSE ecosystem for presentations and annual reports
-is *people* (faculty), *what they work on* (verticals), and *who they work with*
-(collaboration edges). Platforms are infrastructure and read as ambient noise
-on first glance. The legend and accessible view still show all three node
-shapes so users see the system is complete; they can compose any view they
-want with the layer toggles.
+Why: the narrative for most organizational presentations is *people*, *what they work on* (domains), and *who they work with* (collaboration edges). Infrastructure reads as ambient noise on first glance. The legend and accessible view still show all node shapes so users see the complete system; they can compose any view they want with the layer toggles.
 
 ## Accessibility
 
 - WCAG 2.1 AA contrast verified across primary surfaces.
-- `prefers-reduced-motion` respected throughout (animations collapse to final
-  state).
-- Keyboard-operable across the whole app. Press <kbd>Tab</kbd> to walk through
-  controls, <kbd>Enter</kbd> in the search box to focus a faculty, <kbd>Esc</kbd>
-  to close the drawer.
-- A semantic **Accessible View** is one click away and exposes the same data
-  as sortable, expandable lists and tables — no information loss relative to
-  the visual graph.
+- Light and dark theme modes available via toggle in the bottom-right corner.
+- `prefers-reduced-motion` respected throughout (animations collapse to final state).
+- Keyboard-operable across the whole app. Press <kbd>Tab</kbd> to walk through controls, <kbd>Enter</kbd> in the search box to focus a person, <kbd>Esc</kbd> to close the drawer.
+- A semantic **Accessible View** is one click away and exposes the same data as sortable, expandable lists and tables — no information loss relative to the visual graph.
 
-## Project layout
+## Visualization libraries
 
-```
-public/
-  data/
-    CeNSE_Master_Ecosystem_Dataset.xlsx
-src/
-  app/
-    App.tsx
-  components/
-    GraphCanvas.tsx
-    ControlPanel.tsx
-    SearchBox.tsx
-    LayerToggles.tsx
-    SectorFilter.tsx
-    Legend.tsx
-    DetailDrawer.tsx
-    ExportControls.tsx
-    WarningBanner.tsx
-    AccessibleView.tsx
-    StatsBar.tsx
-    Icons.tsx
-  hooks/
-    useWorkbookData.ts
-    useGraphState.ts
-    useReducedMotion.ts
-  lib/
-    loadWorkbook.ts
-    validateWorkbook.ts
-    buildGraph.ts
-    buildAccessibleModel.ts
-    exportGraph.ts
-    motion.ts
-    colorSystem.ts
-    focusManager.ts
-    types.ts
-  styles/
-    tokens.css
-    app.css
-```
+| Library | Version | Purpose |
+|---------|---------|---------|
+| Cytoscape | 3.30.2 | 2D graph rendering engine with force-directed layout, interactive pan/zoom, and comprehensive styling for the flat view |
+| Cytoscape-fcose | 2.2.0 | Fast layout algorithm that organizes nodes into aspect-aware bands to prevent edge crossings |
+| Cytoscape-svg | 0.4.0 | SVG export functionality for the graph |
+| 3D Force Graph | 1.80.0 | 3D spherical network visualization for the globe view |
+| Three.js | 0.185.1 | WebGL rendering engine powering the 3D globe visualization |
+| XLSX (SheetJS) | 0.18.5 | Excel workbook parsing for data loading |
+| GSAP | 3.12.5 | Animation library for fade-in effects, focus mode transitions, and smooth UI state changes |
 
-## Browser support
-
-Latest Chrome, Edge, Firefox, Safari. The app uses standard Web APIs only —
-no service worker, no auth, no network calls other than the workbook fetch.
+See [TECH_STACK.md](./TECH_STACK.md) for the complete technology stack and architecture details.
