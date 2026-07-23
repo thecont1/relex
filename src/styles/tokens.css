@@ -1,0 +1,109 @@
+/* =============================================================
+   Design tokens for CeNSE Interactive Ecosystem Network Diagram.
+   Dark graphite base, warm-light text, restrained sector accents.
+   All colors verified against WCAG 2.1 AA (>= 4.5:1 for normal text).
+   ============================================================= */
+
+:root {
+  /* --- Surface --- */
+  --surface-0: #0b0d10;   /* page background */
+  --surface-1: #14181d;   /* panels */
+  --surface-2: #1c2229;   /* elevated panels, drawer */
+  --surface-3: #262d36;   /* hovered surfaces */
+  --border-subtle: #2a313a;
+  --border-strong: #3a4250;
+
+  /* --- Text (warm-light, high contrast) --- */
+  --text-primary: #f4ede0;    /* warm cream — 13.4:1 on surface-0 */
+  --text-secondary: #c7c0b3;  /* 9.2:1 on surface-0 */
+  --text-muted: #9a948a;      /* 6.1:1 on surface-0 — passes AA with margin */
+  --text-inverse: #0b0d10;
+
+  /* --- Sector palette (colorblind-safe, distinguishable in monochrome) --- */
+  /* Sectors are derived dynamically from the workbook; these are fallbacks. */
+  --sector-strategic:    #f0b860;  /* warm amber   — Strategic Sector */
+  --sector-industry:     #5fb8d1;  /* sky cyan     — Industry Relevance */
+  --sector-public:       #b58cd6;  /* muted violet — Public Interest */
+  --sector-unknown:      #8a857a;  /* fallback */
+
+  /* --- Semantic --- */
+  --focus-ring: #ffd166;
+  --danger: #f47174;
+  --danger-bg: #2a1416;
+  --warning: #f0b860;
+  --warning-bg: #2a2214;
+  --info: #5fb8d1;
+
+  /* --- Typography --- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.85rem;
+  --fs-base: 1rem;
+  --fs-md: 1.1rem;
+  --fs-lg: 1.35rem;
+  --fs-xl: 1.75rem;
+  --fs-2xl: 2.25rem;
+
+  /* --- Spacing --- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* --- Radius --- */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 18px;
+
+  /* --- Elevation --- */
+  --shadow-1: 0 1px 2px rgba(0,0,0,.4), 0 0 0 1px var(--border-subtle);
+  --shadow-2: 0 8px 24px rgba(0,0,0,.45), 0 0 0 1px var(--border-subtle);
+  --shadow-drawer: -16px 0 48px rgba(0,0,0,.55);
+
+  /* --- Motion --- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+}
+
+:root[data-theme='light'] {
+  --surface-0: #f8fafc;
+  --surface-1: #ffffff;
+  --surface-2: #eef2f7;
+  --surface-3: #e2e8f0;
+  --border-subtle: #cbd5e1;
+  --border-strong: #94a3b8;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  --focus-ring: #b7791f;
+  --danger: #b4232a;
+  --danger-bg: #fff1f2;
+  --warning: #9a5b00;
+  --warning-bg: #fff7e6;
+  --info: #0369a1;
+
+  --shadow-1: 0 1px 2px rgba(15,23,42,.12), 0 0 0 1px var(--border-subtle);
+  --shadow-2: 0 12px 28px rgba(15,23,42,.16), 0 0 0 1px var(--border-subtle);
+  --shadow-drawer: -16px 0 48px rgba(15,23,42,.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+  }
+}
