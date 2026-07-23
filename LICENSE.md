@@ -1,202 +1,155 @@
+Relex Business Source License
+=============================
 
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
+Version 1.0 — Effective 2026-07-24  
+Copyright (c) 2026 Mahesh Shantaram
 
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+This is a source-available license intended to allow you to read, learn from,
+and modify the Relex codebase for your own internal use, while *prohibiting*
+you from operating Relex as a competing paid service or distributing it as a
+general-purpose product without a separate commercial agreement.
 
-   1. Definitions.
+This is **not** legal advice. If you require legal certainty, consult a
+qualified lawyer in your jurisdiction.
 
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
+1. Definitions
+--------------
 
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
+- **Software** means the Relex codebase and all files in this repository,
+  including modifications and derivative works you create based on it.
 
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
+- **Licensor** means the copyright holder, Mahesh Shantaram.
 
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
+- **You** (or **Your**) means any individual or legal entity exercising
+  permissions granted by this license.
 
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
+- **Production Use** means using the Software, or making it available for use,
+  in any way that provides value to third parties beyond yourself or your own
+  organization (for example: running it on a server for others to access,
+  embedding it in a product, or offering it as a service).
 
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
+- **Competing Service** means any hosted or distributed software whose primary
+  purpose is substantially similar to that of Relex: visualizing people,
+  organizations, and their relationships (such as faculty, projects,
+  collaborations, platforms, research verticals, or similar entities) for
+  institutions or clients.
 
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
+- **Non-Commercial Use** means use that is not intended to generate direct or
+  indirect revenue, consideration, or commercial advantage. Academic research,
+  personal learning, and internal experiments within an organization generally
+  qualify as Non-Commercial Use.
 
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
+2. Grant of Rights
+------------------
 
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
+Subject to the terms and conditions of this license, Licensor grants You a
+non-exclusive, worldwide, non-transferable, revocable license to:
 
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
+- **View and study** the Software.
+- **Modify** the Software for your own purposes.
+- **Use** the Software for Non-Commercial Use within your own organization.
 
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
+You may run the Software internally (for yourself or within your organization)
+for evaluation, experimentation, research, or internal reporting without
+paying a fee to the Licensor, provided that such use is Non-Commercial and not
+a Competing Service.
 
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
+3. Restrictions
+---------------
 
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
+Except as expressly permitted above, You **may not**:
 
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
+1. Offer the Software, or any modified version of it, as a hosted or managed
+   service to third parties without a separate written agreement with Licensor.
 
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
+2. Sell, license, sublicense, rent, lease, or otherwise commercially exploit
+   the Software as a product or service, including as part of a consulting,
+   SaaS, or analytics offering, without a separate written agreement with
+   Licensor.
 
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
+3. Use the Software to operate any **Competing Service**, whether paid or
+   unpaid, without a separate written agreement with Licensor.
 
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of the Derivative Works, in at least one
-          of the following places: within a NOTICE text file distributed
-          as part of the Derivative Works; within the Source form or
-          documentation, if provided along with the Derivative Works; or,
-          within a display generated by the Derivative Works, if and
-          wherever such third-party notices normally appear. The contents
-          of the NOTICE file are for informational purposes only and
-          do not modify the License. You may add Your own attribution
-          notices within Derivative Works that You distribute, alongside
-          or as an addendum to the NOTICE text from the Work, provided
-          that such additional attribution notices cannot be construed
-          as modifying the License.
+4. Redistribute the Software, or substantial portions of it, in source or
+   binary form to third parties, except:
+   - as part of an academic paper, blog post, portfolio, or similar work
+     where small excerpts of code are quoted for illustrative purposes; or
+   - as explicitly permitted in writing by Licensor.
 
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
+5. Remove or alter any copyright notices, license notices, or attribution to
+   the Licensor in the Software.
 
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
+Any attempt to circumvent these restrictions (for example by providing
+“deployment scripts” that cause others to host the Software for third parties)
+is considered a violation of this license.
 
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
+4. Contributions
+----------------
 
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
+If You submit changes, pull requests, or other contributions to the Software,
+You agree that Licensor may use, modify, and incorporate those contributions
+into the Software and any commercial versions of it without additional
+obligation to You, unless a separate written agreement states otherwise.
 
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
+You are not required to submit any modifications You make; this license does
+not obligate You to contribute code back.
 
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
+5. No Warranty
+--------------
 
-   END OF TERMS AND CONDITIONS
+THE SOFTWARE IS PROVIDED “AS IS” AND “AS AVAILABLE”, WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN
+NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM,
+OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
-   APPENDIX: How to apply the Apache License to your work.
+6. Limitation of Liability
+--------------------------
 
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "{}"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, LICENSOR SHALL NOT BE
+LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE
+DAMAGES, OR ANY LOSS OF PROFITS OR REVENUE, WHETHER INCURRED DIRECTLY OR
+INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES,
+RESULTING FROM YOUR USE OF OR INABILITY TO USE THE SOFTWARE.
 
-   Copyright {yyyy} {name of copyright owner}
+7. Term and Termination
+-----------------------
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+This license is effective from the date You first access or use the Software
+and continues until terminated.
 
-       http://www.apache.org/licenses/LICENSE-2.0
+Licensor may terminate this license immediately if You violate any of its
+terms. Upon termination, You must stop using the Software and destroy any
+copies in Your possession or control. Termination does not limit any of
+Licensor’s rights or remedies at law or in equity.
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+8. Commercial Licensing
+-----------------------
+
+If You wish to:
+
+- offer the Software as a hosted or managed service,
+- integrate it into a commercial product,
+- use it to provide paid services to clients, or
+- operate it as part of any Competing Service,
+
+You must obtain a separate commercial license from the Licensor.
+
+To inquire about commercial licensing, contact:
+
+> Mahesh Shantaram  
+> Email: (add preferred contact)
+
+9. Governing Law
+----------------
+
+This license shall be governed by and construed in accordance with the laws of
+India, without regard to its conflict-of-law principles, unless otherwise
+required by applicable law.
+
+---
+
+By using, copying, or modifying the Software, You acknowledge that You have
+read, understood, and agree to be bound by the terms of this license.
