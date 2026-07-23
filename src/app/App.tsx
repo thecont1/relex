@@ -8,10 +8,11 @@ import { DetailDrawer } from '../components/DetailDrawer';
 import { AccessibleView } from '../components/AccessibleView';
 import { ErrorBanner, WarningBanner } from '../components/WarningBanner';
 import { FocusModeToggle } from '../components/FocusModeToggle';
-import { CenseHeader } from '../components/CenseHeader';
+import { AppHeader } from '../components/AppHeader';
 import { exportPng, exportSvg } from '../lib/exportGraph';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { fadeIn } from '../lib/motion';
+import { tenantConfig } from '../tenant/config';
 import type { GraphModel, ThemeMode } from '../lib/types';
 
 const SCALE_MODEL_BASE = 1.3;
@@ -142,10 +143,6 @@ export function App() {
     const body = document.body;
     if (gs.focusMode) {
       body.classList.add('focus-mode');
-      if (!reducedMotion) {
-        // animate a snappy fade-out of the chrome via CSS class transition
-        // (already 200ms via --dur-fast)
-      }
     } else {
       body.classList.remove('focus-mode');
     }
@@ -154,14 +151,14 @@ export function App() {
   const onExportPng = useCallback(() => {
     const cy = canvasRef.current?.getCy();
     if (!cy) return;
-    exportPng(cy, filenameStamp('cense-ecosystem', 'png'));
+    exportPng(cy, filenameStamp(tenantConfig.features.exportFilenameBase, 'png'));
     setLiveMessage('Exported PNG.');
   }, []);
 
   const onExportSvg = useCallback(() => {
     const cy = canvasRef.current?.getCy();
     if (!cy) return;
-    exportSvg(cy, filenameStamp('cense-ecosystem', 'svg'));
+    exportSvg(cy, filenameStamp(tenantConfig.features.exportFilenameBase, 'svg'));
     setLiveMessage('Exported SVG.');
   }, []);
 
@@ -179,7 +176,7 @@ export function App() {
   if (state.phase === 'error') {
     return (
       <div className="app-shell" ref={shellRef}>
-        <CenseHeader
+        <AppHeader
           refreshedAt={null}
           onReset={handleReset}
           resetting={false}
@@ -207,7 +204,7 @@ export function App() {
   return (
     <div className="app-shell" data-theme={theme} ref={shellRef}>
       <a className="skip-link" href="#main">Skip to main content</a>
-      <CenseHeader
+      <AppHeader
         refreshedAt={state.refreshedAt}
         onReset={handleReset}
         resetting={resetting}

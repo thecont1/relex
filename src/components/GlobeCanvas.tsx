@@ -377,7 +377,7 @@ export const GlobeCanvas = forwardRef<GlobeCanvasHandle, Props>(function GlobeCa
       ref={containerRef}
       className="globe-host"
       role="application"
-      aria-label="CeNSE ecosystem network globe (3D). Use arrow keys to move between nodes, Enter to open details, Escape to clear. Use the Accessible View for an equivalent textual listing."
+      aria-label="Network globe (3D). Use arrow keys to move between nodes, Enter to open details, Escape to clear. Use the Accessible View for an equivalent textual listing."
     />
   );
 });

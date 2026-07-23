@@ -1,12 +1,19 @@
 {
-  "name": "cense-ecosystem-network",
+  "name": "relexplorer",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:cense": "TENANT=cense vite",
+    "dev:test-dept": "TENANT=test-dept vite",
     "build": "tsc -b && vite build",
+    "build:cense": "TENANT=cense tsc -b && TENANT=cense vite build",
+    "build:test-dept": "TENANT=test-dept tsc -b && TENANT=test-dept vite build",
+    "build:all": "bun run build:cense && bun run build:test-dept",
     "preview": "vite preview --port 4173",
+    "preview:cense": "TENANT=cense vite preview --port 4173",
+    "preview:test-dept": "TENANT=test-dept vite preview --port 4173",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

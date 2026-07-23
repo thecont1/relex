@@ -1,14 +1,34 @@
 // Fetches and parses the workbook fresh on each call. Returns parsed sheet rows
 // keyed by sheet name. Throws on network/parse failure so the caller can surface
 // a fatal banner.
+//
+// The data source path is read from the tenant config (injected at build time),
+// so each tenant bundle fetches its own workbook. No hardcoded paths.
 
 import * as XLSX from 'xlsx';
+import { tenantConfig } from '../tenant/config';
 import type { RawWorkbook } from './validateWorkbook';
 
-const DEFAULT_PATH = './data/CeNSE_Master_Ecosystem_Dataset.xlsx';
+export async function loadWorkbook(): Promise<RawWorkbook> {
+  const ds = tenantConfig.dataSource;
+  let url: string;
+  let headers: Record<string, string> | undefined;
 
-export async function loadWorkbook(url: string = DEFAULT_PATH): Promise<RawWorkbook> {
-  const res = await fetch(url, { cache: 'no-store' });
+  if (ds.type === 'local') {
+    url = ds.path;
+  } else if (ds.type === 'remote') {
+    url = ds.path;
+    headers = ds.headers;
+  } else {
+    throw new Error(`Unknown data source type: ${ds.type}`);
+  }
+
+  const fetchOpts: RequestInit = { cache: 'no-store' };
+  if (headers) {
+    fetchOpts.headers = headers;
+  }
+
+  const res = await fetch(url, fetchOpts);
   if (!res.ok) {
     throw new Error(`Workbook fetch failed: HTTP ${res.status} ${res.statusText}`);
   }

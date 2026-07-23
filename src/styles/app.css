@@ -230,7 +230,7 @@ a:focus-visible {
    `width`/`height` (layout-thrashing). Reduced motion collapses the chrome
    to its hidden state instantly via the `--dur-fast: 0ms` token. */
 
-.cense-header,
+.app-header,
 .controls-aside,
 .view-toggle-row,
 .stage-summary {
@@ -240,7 +240,7 @@ a:focus-visible {
   will-change: transform, opacity;
 }
 
-body.focus-mode .cense-header {
+body.focus-mode .app-header {
   position: absolute;
   top: 0;
   left: 0;
@@ -890,7 +890,7 @@ details.acc-disclose > .acc-disclose-body {
 }
 
 /* ---------- CeNSE-style header (mirrors cense.iisc.ac.in) ---------- */
-.cense-header {
+.app-header {
   /* Always use the logo's grey (#dedddd) so the logo merges seamlessly with
      the header background in both light and dark modes. */
   background: #dedddd;
@@ -902,41 +902,41 @@ details.acc-disclose > .acc-disclose-body {
 }
 /* In dark mode the header background is still the light logo grey (#dedddd),
    so we need dark text to maintain contrast. */
-:root[data-theme='dark'] .cense-header {
+:root[data-theme='dark'] .app-header {
   color: #0f172a;
 }
-:root[data-theme='dark'] .cense-header__stat,
-:root[data-theme='dark'] .cense-header__stat--muted,
-:root[data-theme='dark'] .cense-header__action,
-:root[data-theme='dark'] .cense-header__action-label,
-:root[data-theme='dark'] .cense-header__refreshed {
+:root[data-theme='dark'] .app-header__stat,
+:root[data-theme='dark'] .app-header__stat--muted,
+:root[data-theme='dark'] .app-header__action,
+:root[data-theme='dark'] .app-header__action-label,
+:root[data-theme='dark'] .app-header__refreshed {
   color: #334155;
 }
-:root[data-theme='dark'] .cense-header__stat strong,
-:root[data-theme='dark'] .cense-header__stat--muted strong {
+:root[data-theme='dark'] .app-header__stat strong,
+:root[data-theme='dark'] .app-header__stat--muted strong {
   color: #0f172a;
 }
-:root[data-theme='dark'] .cense-header__search input,
-:root[data-theme='dark'] .cense-header__search-btn {
+:root[data-theme='dark'] .app-header__search input,
+:root[data-theme='dark'] .app-header__search-btn {
   color: #0f172a;
 }
-:root[data-theme='dark'] .cense-header__search input::placeholder {
+:root[data-theme='dark'] .app-header__search input::placeholder {
   color: #64748b;
 }
-:root[data-theme='dark'] .cense-header__action {
+:root[data-theme='dark'] .app-header__action {
   color: #0f172a;
 }
-:root[data-theme='dark'] .cense-header__action:hover {
+:root[data-theme='dark'] .app-header__action:hover {
   color: var(--cense-red);
 }
-.cense-header__top {
+.app-header__top {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, auto);
   align-items: center;
   gap: 24px;
   padding: 10px 28px;
 }
-.cense-header__title {
+.app-header__title {
   margin: 0;
   color: #d8232a; /* CeNSE red */
   font-size: clamp(13px, 1.2vw, 17px);
@@ -944,7 +944,7 @@ details.acc-disclose > .acc-disclose-body {
   letter-spacing: 0.02em;
   line-height: 1.2;
 }
-.cense-header__search {
+.app-header__search {
   display: flex;
   align-items: center;
   gap: 0;
@@ -957,7 +957,7 @@ details.acc-disclose > .acc-disclose-body {
   padding: 0;
   overflow: hidden;
 }
-.cense-header__search input {
+.app-header__search input {
   flex: 1 1 auto;
   background: transparent;
   border: 0;
@@ -969,10 +969,10 @@ details.acc-disclose > .acc-disclose-body {
   color: var(--text-primary);
   min-width: 0;
 }
-.cense-header__search input::placeholder {
+.app-header__search input::placeholder {
   color: var(--text-muted);
 }
-.cense-header__search-btn {
+.app-header__search-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -984,14 +984,14 @@ details.acc-disclose > .acc-disclose-body {
   color: var(--text-primary);
   cursor: pointer;
 }
-.cense-header__search-btn:hover { background: var(--surface-2); }
-.cense-header__logo {
+.app-header__search-btn:hover { background: var(--surface-2); }
+.app-header__logo {
   display: block;
   width: 110px; /* 50% of the previous 220px — frees more vertical space for the network */
   height: auto;
   user-select: none;
 }
-.cense-header__nav {
+.app-header__nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1000,12 +1000,12 @@ details.acc-disclose > .acc-disclose-body {
   border-top: 1px solid var(--border-subtle);
   background: #dedddd;
 }
-.cense-header__search-wrap {
+.app-header__search-wrap {
   position: relative;
   width: 320px;
   max-width: 100%;
 }
-.cense-header__search-dropdown {
+.app-header__search-dropdown {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
@@ -1022,8 +1022,8 @@ details.acc-disclose > .acc-disclose-body {
   z-index: 50;
   box-shadow: var(--shadow-2);
 }
-.cense-header__search-dropdown li { list-style: none; }
-.cense-header__search-option {
+.app-header__search-dropdown li { list-style: none; }
+.app-header__search-option {
   display: block;
   width: 100%;
   text-align: left;
@@ -1036,19 +1036,19 @@ details.acc-disclose > .acc-disclose-body {
   color: inherit;
   cursor: pointer;
 }
-.cense-header__search-option:hover,
-.cense-header__search-option:focus-visible {
+.app-header__search-option:hover,
+.app-header__search-option:focus-visible {
   background: var(--surface-3);
   color: var(--text-primary);
   outline: none;
 }
-:root[data-theme='dark'] .cense-header__search-option:hover,
-:root[data-theme='dark'] .cense-header__search-option:focus-visible {
+:root[data-theme='dark'] .app-header__search-option:hover,
+:root[data-theme='dark'] .app-header__search-option:focus-visible {
   background: #f0f0f0;
   color: #0f172a;
 }
 /* Stats row that replaces the CeNSE nav items in the second-level bar. */
-.cense-header__stats {
+.app-header__stats {
   display: inline-flex;
   align-items: baseline;
   gap: 22px;
@@ -1056,41 +1056,41 @@ details.acc-disclose > .acc-disclose-body {
   min-height: 42px;
   padding: 8px 0;
 }
-.cense-header__stat {
+.app-header__stat {
   font-size: 13px;
   color: var(--text-secondary);
   font-weight: 500;
 }
-.cense-header__stat strong {
+.app-header__stat strong {
   font-size: 18px;
   font-weight: 700;
   margin-right: 4px;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
 }
-.cense-header__stat--muted {
+.app-header__stat--muted {
   margin-left: auto;
   color: var(--text-muted);
   font-size: 12px;
 }
-.cense-header__stat--muted strong {
+.app-header__stat--muted strong {
   font-size: 13px;
   color: var(--text-primary);
 }
-.cense-header__actions {
+.app-header__actions {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
-.cense-header__action-label {
+.app-header__action-label {
   font-size: 10px;
   letter-spacing: 0.1em;
   color: var(--text-muted);
   text-transform: uppercase;
   margin-right: 4px;
 }
-.cense-header__action {
+.app-header__action {
   background: transparent;
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
@@ -1101,23 +1101,23 @@ details.acc-disclose > .acc-disclose-body {
   border-radius: 2px;
   cursor: pointer;
 }
-.cense-header__action:hover {
+.app-header__action:hover {
   background: var(--surface-1);
   border-color: var(--cense-red);
   color: var(--cense-red);
 }
-.cense-header__action:disabled { opacity: 0.5; cursor: default; }
-.cense-header__refreshed {
+.app-header__action:disabled { opacity: 0.5; cursor: default; }
+.app-header__refreshed {
   font-size: 11px;
   color: var(--text-muted);
   margin-left: 8px;
 }
 @media (max-width: 1100px) {
-  .cense-header__top { grid-template-columns: 1fr auto; row-gap: 10px; }
-  .cense-header__logo { grid-column: 2; grid-row: 1; }
-  .cense-header__search-wrap { grid-column: 1 / -1; width: 100%; }
+  .app-header__top { grid-template-columns: 1fr auto; row-gap: 10px; }
+  .app-header__logo { grid-column: 2; grid-row: 1; }
+  .app-header__search-wrap { grid-column: 1 / -1; width: 100%; }
 }
 @media (max-width: 760px) {
-  .cense-header__nav { flex-direction: column; align-items: flex-start; }
-  .cense-header__actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+  .app-header__nav { flex-direction: column; align-items: flex-start; }
+  .app-header__actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
 }

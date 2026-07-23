@@ -465,7 +465,7 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, Props>(function GraphCa
       ref={containerRef}
       className="cy-host"
       role="application"
-      aria-label="CeNSE ecosystem network graph. Use arrow keys to move between nodes, Enter to open details, Escape to clear. Use the Accessible View for an equivalent textual listing."
+      aria-label="Network graph. Use arrow keys to move between nodes, Enter to open details, Escape to clear. Use the Accessible View for an equivalent textual listing."
     />
   );
 });

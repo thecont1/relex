@@ -1,6 +1,7 @@
 /* =============================================================
-   Design tokens for CeNSE Interactive Ecosystem Network Diagram.
-   Dark graphite base, warm-light text, restrained sector accents.
+   Design tokens for relexplorer — the Interactive Network
+   Relationship Explorer. Dark graphite base, warm-light text,
+   restrained sector accents.
    All colors verified against WCAG 2.1 AA (>= 4.5:1 for normal text).
    ============================================================= */
 
@@ -28,7 +29,7 @@
 
   /* --- Semantic --- */
   --focus-ring: #ffd166;
-  --cense-red: #ed2229;  /* IISc/CeNSE brand red */
+  --brand-accent: #ed2229;  /* Default accent; overridden by tenant config at runtime */
   --danger: #f47174;
   --danger-bg: #2a1416;
   --warning: #f0b860;
@@ -80,9 +81,7 @@
 }
 
 :root[data-theme='light'] {
-  /* The neutral grey #dedddd was sampled directly from the dual CeNSE/IISc
-     logo PNG so the header chrome and the canvas read as one piece —
-     a single quiet stage for the network. */
+  /* Neutral grey base for the light theme. */
   --surface-0: #dedddd;
   --surface-1: #e8e8e8;
   --surface-2: #d4d4d4;
@@ -96,7 +95,7 @@
   --text-inverse: #ffffff;
 
   --focus-ring: #b7791f;
-  --cense-red: #ed2229;  /* IISc/CeNSE brand red */
+  --brand-accent: #ed2229;  /* Default accent; overridden by tenant config at runtime */
   --danger: #b4232a;
   --danger-bg: #fff1f2;
   --warning: #9a5b00;

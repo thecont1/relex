@@ -33,7 +33,7 @@ export function ErrorBanner({ message }: { message: string }) {
         <strong>Workbook could not be loaded.</strong>
         <p style={{ marginTop: 4 }}>{message}</p>
         <p style={{ marginTop: 4, fontSize: 'var(--fs-xs)' }}>
-          Verify that <code>public/data/CeNSE_Master_Ecosystem_Dataset.xlsx</code> exists and contains the required sheets and columns.
+          Verify that the workbook exists at the configured data source path and contains the required sheets and columns.
         </p>
       </div>
     </div>

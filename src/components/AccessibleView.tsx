@@ -71,7 +71,7 @@ export function AccessibleView({ graph, filters, onSelectNode }: Props) {
 
   return (
     <div className="accessible-view" role="region" aria-labelledby="accessible-heading">
-      <h2 id="accessible-heading">Accessible View of the CeNSE Ecosystem</h2>
+      <h2 id="accessible-heading">Accessible View of the Network</h2>
       <p className="lede">
         The data below mirrors the visual network diagram. Use this view if you prefer reading the
         information as lists and tables rather than navigating a spatial graph.

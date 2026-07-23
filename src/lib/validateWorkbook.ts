@@ -1,8 +1,14 @@
 // Workbook schema validation.
-// Sheet names and column names are exactly as specified. Any deviation is a fatal error.
-// Non-fatal data quality issues (blank sectors, unknown refs, duplicate rows, malformed
-// collaboration rows) are surfaced as warnings.
+//
+// Sheet names and column names are read from the tenant config (injected at
+// build time), not hardcoded. This allows future clients with different domain
+// models to be supported without touching core code — they just provide their
+// own tenant.config.json with the appropriate sheet/column mapping.
+//
+// Non-fatal data quality issues (blank sectors, unknown refs, duplicate rows,
+// malformed collaboration rows) are surfaced as warnings.
 
+import { tenantConfig } from '../tenant/config';
 import type {
   WorkbookData,
   ValidationResult,
@@ -18,16 +24,52 @@ import type {
 // Raw sheet shapes produced by SheetJS — column keys are not type-narrowed yet.
 type RawRows = Record<string, unknown>[];
 
-const REQUIRED_SHEETS = ['Platforms', 'Faculty', 'Faculty_Platforms', 'Research_Verticals', 'Faculty_Verticals', 'Collaborations'] as const;
+// Resolve the sheet/column mapping from the tenant config.
+// The config stores sheets as a map of sheet-name → required-columns.
+// We need the reverse: given a logical role (platforms, faculty, etc.),
+// find the sheet name and columns. For the standard schema, the sheet names
+// are the keys. For custom schemas, the tenant config defines the mapping.
+const schema = tenantConfig.schema;
 
-const SHEET_COLUMNS: Record<typeof REQUIRED_SHEETS[number], readonly string[]> = {
-  Platforms: ['Platform ID', 'Platform', 'Description', 'Sector'],
-  Faculty: ['Faculty ID', 'Faculty'],
-  Faculty_Platforms: ['Faculty', 'Platform'],
-  Research_Verticals: ['Vertical ID', 'Research Vertical', 'Sector'],
-  Faculty_Verticals: ['Faculty', 'Research Vertical'],
-  Collaborations: ['Faculty A', 'Faculty B', 'Project/Topic']
-};
+// Build a lookup from the config's sheet map.
+// The config maps sheet names to their required columns.
+// We derive the logical roles from the sheet names themselves.
+const SHEET_COLUMNS: Record<string, readonly string[]> = schema.sheets;
+
+// Logical role → sheet name mapping. For the standard schema, these are
+// the canonical sheet names. For custom schemas, the tenant config's
+// sheet names are used directly.
+const ROLE_TO_SHEET: Record<string, string> = {};
+for (const sheetName of Object.keys(SHEET_COLUMNS)) {
+  // Map common role names to sheet names. This is a best-effort mapping
+  // that works for the standard schema. For custom schemas, the sheet
+  // names in the config ARE the sheet names used in the workbook.
+  const lower = sheetName.toLowerCase();
+  if (lower.includes('platform') && !lower.includes('faculty')) {
+    ROLE_TO_SHEET['platforms'] = sheetName;
+  } else if (lower === 'faculty') {
+    ROLE_TO_SHEET['faculty'] = sheetName;
+  } else if (lower.includes('faculty_platform') || (lower.includes('faculty') && lower.includes('platform'))) {
+    ROLE_TO_SHEET['facultyPlatforms'] = sheetName;
+  } else if (lower.includes('vertical') && !lower.includes('faculty')) {
+    ROLE_TO_SHEET['verticals'] = sheetName;
+  } else if (lower.includes('faculty_vertical') || (lower.includes('faculty') && lower.includes('vertical'))) {
+    ROLE_TO_SHEET['facultyVerticals'] = sheetName;
+  } else if (lower.includes('collab')) {
+    ROLE_TO_SHEET['collaborations'] = sheetName;
+  }
+}
+
+// Helper: get the sheet name for a logical role, falling back to the
+// config key name itself.
+function sheetFor(role: string): string | undefined {
+  return ROLE_TO_SHEET[role];
+}
+
+// Helper: get required columns for a sheet name.
+function colsFor(sheetName: string): readonly string[] | undefined {
+  return SHEET_COLUMNS[sheetName];
+}
 
 export interface RawWorkbook {
   [sheetName: string]: RawRows;
@@ -37,9 +79,9 @@ export function validateWorkbook(raw: RawWorkbook): { data: WorkbookData; valida
   const issues: WorkbookIssue[] = [];
 
   // ---- Sheet presence (fatal) ----
-  for (const name of REQUIRED_SHEETS) {
+  for (const name of Object.keys(SHEET_COLUMNS)) {
     if (!Object.prototype.hasOwnProperty.call(raw, name)) {
-      issues.push({ severity: 'error', sheet: name, message: `Missing required sheet "${name}".` });
+      issues.push({ severity: 'error', sheet: name, message: `Missing required sheet \"${name}\".` });
     }
   }
   if (issues.some(i => i.severity === 'error')) {
@@ -47,11 +89,12 @@ export function validateWorkbook(raw: RawWorkbook): { data: WorkbookData; valida
   }
 
   // ---- Column presence (fatal) ----
-  for (const name of REQUIRED_SHEETS) {
+  for (const name of Object.keys(SHEET_COLUMNS)) {
     const rows = raw[name] ?? [];
-    const cols = SHEET_COLUMNS[name];
+    const cols = colsFor(name);
+    if (!cols) continue;
     if (rows.length === 0) {
-      issues.push({ severity: 'error', sheet: name, message: `Sheet "${name}" is empty.` });
+      issues.push({ severity: 'error', sheet: name, message: `Sheet \"${name}\" is empty.` });
       continue;
     }
     const present = new Set(Object.keys(rows[0]));
@@ -60,7 +103,7 @@ export function validateWorkbook(raw: RawWorkbook): { data: WorkbookData; valida
       issues.push({
         severity: 'error',
         sheet: name,
-        message: `Sheet "${name}" is missing required column(s): ${missing.join(', ')}.`
+        message: `Sheet \"${name}\" is missing required column(s): ${missing.join(', ')}.`
       });
     }
   }
@@ -69,12 +112,22 @@ export function validateWorkbook(raw: RawWorkbook): { data: WorkbookData; valida
   }
 
   // ---- Coerce and run row-level validation ----
-  const platforms = raw.Platforms.map(toPlatformRow);
-  const faculty = raw.Faculty.map(toFacultyRow);
-  const facultyPlatforms = raw.Faculty_Platforms.map(toFacultyPlatformRow);
-  const verticals = raw.Research_Verticals.map(toVerticalRow);
-  const facultyVerticals = raw.Faculty_Verticals.map(toFacultyVerticalRow);
-  const collaborations = raw.Collaborations.map(toCollaborationRow);
+  // Use the resolved sheet names from the config. For the standard schema,
+  // these resolve to the canonical sheet names. For custom schemas, they
+  // resolve to whatever the tenant configured.
+  const platformsSheet = sheetFor('platforms') ?? 'Platforms';
+  const facultySheet = sheetFor('faculty') ?? 'Faculty';
+  const facultyPlatformsSheet = sheetFor('facultyPlatforms') ?? 'Faculty_Platforms';
+  const verticalsSheet = sheetFor('verticals') ?? 'Research_Verticals';
+  const facultyVerticalsSheet = sheetFor('facultyVerticals') ?? 'Faculty_Verticals';
+  const collaborationsSheet = sheetFor('collaborations') ?? 'Collaborations';
+
+  const platforms = (raw[platformsSheet] ?? []).map(toPlatformRow);
+  const faculty = (raw[facultySheet] ?? []).map(toFacultyRow);
+  const facultyPlatforms = (raw[facultyPlatformsSheet] ?? []).map(toFacultyPlatformRow);
+  const verticals = (raw[verticalsSheet] ?? []).map(toVerticalRow);
+  const facultyVerticals = (raw[facultyVerticalsSheet] ?? []).map(toFacultyVerticalRow);
+  const collaborations = (raw[collaborationsSheet] ?? []).map(toCollaborationRow);
 
   const facultyNames = new Set(faculty.map(f => f.Faculty));
   const platformNames = new Set(platforms.map(p => p.Platform));
@@ -83,39 +136,39 @@ export function validateWorkbook(raw: RawWorkbook): { data: WorkbookData; valida
   // Blank sectors — warnings
   platforms.forEach((row, i) => {
     if (!row.Sector || !row.Sector.trim()) {
-      issues.push({ severity: 'warning', sheet: 'Platforms', rowIndex: i + 2, message: `Blank Sector for platform "${row.Platform}".` });
+      issues.push({ severity: 'warning', sheet: platformsSheet, rowIndex: i + 2, message: `Blank Sector for platform \"${row.Platform}\".` });
     }
   });
   verticals.forEach((row, i) => {
     if (!row.Sector || !row.Sector.trim()) {
-      issues.push({ severity: 'warning', sheet: 'Research_Verticals', rowIndex: i + 2, message: `Blank Sector for vertical "${row['Research Vertical']}".` });
+      issues.push({ severity: 'warning', sheet: verticalsSheet, rowIndex: i + 2, message: `Blank Sector for vertical \"${row['Research Vertical']}\".` });
     }
   });
 
   // Duplicate exact rows
-  warnOnDuplicates(issues, 'Platforms', platforms, ['Platform ID']);
-  warnOnDuplicates(issues, 'Faculty', faculty, ['Faculty ID']);
-  warnOnDuplicates(issues, 'Faculty_Platforms', facultyPlatforms, ['Faculty', 'Platform']);
-  warnOnDuplicates(issues, 'Faculty_Verticals', facultyVerticals, ['Faculty', 'Research Vertical']);
+  warnOnDuplicates(issues, platformsSheet, platforms, ['Platform ID']);
+  warnOnDuplicates(issues, facultySheet, faculty, ['Faculty ID']);
+  warnOnDuplicates(issues, facultyPlatformsSheet, facultyPlatforms, ['Faculty', 'Platform']);
+  warnOnDuplicates(issues, facultyVerticalsSheet, facultyVerticals, ['Faculty', 'Research Vertical']);
 
   // Duplicate collaborations (same faculty pair, same project) — informational
-  warnOnDuplicates(issues, 'Collaborations', collaborations, ['Faculty A', 'Faculty B', 'Project/Topic']);
+  warnOnDuplicates(issues, collaborationsSheet, collaborations, ['Faculty A', 'Faculty B', 'Project/Topic']);
 
   // Unknown entity references
   facultyPlatforms.forEach((row, i) => {
     if (!facultyNames.has(row.Faculty)) {
-      issues.push({ severity: 'warning', sheet: 'Faculty_Platforms', rowIndex: i + 2, message: `Unknown faculty "${row.Faculty}" in Faculty_Platforms.` });
+      issues.push({ severity: 'warning', sheet: facultyPlatformsSheet, rowIndex: i + 2, message: `Unknown faculty \"${row.Faculty}\" in Faculty_Platforms.` });
     }
     if (!platformNames.has(row.Platform)) {
-      issues.push({ severity: 'warning', sheet: 'Faculty_Platforms', rowIndex: i + 2, message: `Unknown platform "${row.Platform}" in Faculty_Platforms.` });
+      issues.push({ severity: 'warning', sheet: facultyPlatformsSheet, rowIndex: i + 2, message: `Unknown platform \"${row.Platform}\" in Faculty_Platforms.` });
     }
   });
   facultyVerticals.forEach((row, i) => {
     if (!facultyNames.has(row.Faculty)) {
-      issues.push({ severity: 'warning', sheet: 'Faculty_Verticals', rowIndex: i + 2, message: `Unknown faculty "${row.Faculty}" in Faculty_Verticals.` });
+      issues.push({ severity: 'warning', sheet: facultyVerticalsSheet, rowIndex: i + 2, message: `Unknown faculty \"${row.Faculty}\" in Faculty_Verticals.` });
     }
     if (!verticalNames.has(row['Research Vertical'])) {
-      issues.push({ severity: 'warning', sheet: 'Faculty_Verticals', rowIndex: i + 2, message: `Unknown vertical "${row['Research Vertical']}" in Faculty_Verticals.` });
+      issues.push({ severity: 'warning', sheet: facultyVerticalsSheet, rowIndex: i + 2, message: `Unknown vertical \"${row['Research Vertical']}\" in Faculty_Verticals.` });
     }
   });
 
@@ -123,20 +176,20 @@ export function validateWorkbook(raw: RawWorkbook): { data: WorkbookData; valida
   collaborations.forEach((row, i) => {
     const rowNum = i + 2;
     if (!row['Faculty A'] || !row['Faculty B']) {
-      issues.push({ severity: 'warning', sheet: 'Collaborations', rowIndex: rowNum, message: 'Malformed collaboration row: missing faculty name(s).' });
+      issues.push({ severity: 'warning', sheet: collaborationsSheet, rowIndex: rowNum, message: 'Malformed collaboration row: missing faculty name(s).' });
       return;
     }
     if (row['Faculty A'].trim() === row['Faculty B'].trim()) {
-      issues.push({ severity: 'warning', sheet: 'Collaborations', rowIndex: rowNum, message: `Self-collaboration ignored: "${row['Faculty A']}" ↔ "${row['Faculty B']}".` });
+      issues.push({ severity: 'warning', sheet: collaborationsSheet, rowIndex: rowNum, message: `Self-collaboration ignored: \"${row['Faculty A']}\" ↔ \"${row['Faculty B']}\".` });
     }
     if (!facultyNames.has(row['Faculty A'])) {
-      issues.push({ severity: 'warning', sheet: 'Collaborations', rowIndex: rowNum, message: `Unknown faculty "${row['Faculty A']}" in Collaborations.` });
+      issues.push({ severity: 'warning', sheet: collaborationsSheet, rowIndex: rowNum, message: `Unknown faculty \"${row['Faculty A']}\" in Collaborations.` });
     }
     if (!facultyNames.has(row['Faculty B'])) {
-      issues.push({ severity: 'warning', sheet: 'Collaborations', rowIndex: rowNum, message: `Unknown faculty "${row['Faculty B']}" in Collaborations.` });
+      issues.push({ severity: 'warning', sheet: collaborationsSheet, rowIndex: rowNum, message: `Unknown faculty \"${row['Faculty B']}\" in Collaborations.` });
     }
     if (!row['Project/Topic'] || !row['Project/Topic'].trim()) {
-      issues.push({ severity: 'warning', sheet: 'Collaborations', rowIndex: rowNum, message: 'Collaboration row has empty Project/Topic.' });
+      issues.push({ severity: 'warning', sheet: collaborationsSheet, rowIndex: rowNum, message: 'Collaboration row has empty Project/Topic.' });
     }
   });
 
@@ -147,6 +200,10 @@ export function validateWorkbook(raw: RawWorkbook): { data: WorkbookData; valida
 }
 
 // ---------- coercion helpers ----------
+// These use the column names from the standard schema. For custom schemas
+// with different column names, the tenant config would need to specify
+// column-name mappings. The current implementation assumes the standard
+// column names (which are the defaults in the tenant config).
 
 function toPlatformRow(r: RawRows[number]): PlatformRow {
   return {
