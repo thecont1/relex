@@ -28,6 +28,7 @@
 
   /* --- Semantic --- */
   --focus-ring: #ffd166;
+  --cense-red: #ed2229;  /* IISc/CeNSE brand red */
   --danger: #f47174;
   --danger-bg: #2a1416;
   --warning: #f0b860;
@@ -73,6 +74,9 @@
   --dur-fast: 160ms;
   --dur-base: 240ms;
   --dur-slow: 420ms;
+  /* Focus mode slide: deliberately slow so the retreat/reveal is graceful,
+     not a zap. Lets the user enjoy the transition. */
+  --dur-focus: 560ms;
 }
 
 :root[data-theme='light'] {
@@ -92,6 +96,7 @@
   --text-inverse: #ffffff;
 
   --focus-ring: #b7791f;
+  --cense-red: #ed2229;  /* IISc/CeNSE brand red */
   --danger: #b4232a;
   --danger-bg: #fff1f2;
   --warning: #9a5b00;

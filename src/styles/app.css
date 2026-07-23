@@ -235,8 +235,8 @@ a:focus-visible {
 .view-toggle-row,
 .stage-summary {
   transition:
-    transform var(--dur-base) var(--ease-out),
-    opacity var(--dur-base) var(--ease-out);
+    transform var(--dur-focus) var(--ease-out),
+    opacity var(--dur-focus) var(--ease-out);
   will-change: transform, opacity;
 }
 
@@ -923,6 +923,12 @@ details.acc-disclose > .acc-disclose-body {
 :root[data-theme='dark'] .cense-header__search input::placeholder {
   color: #64748b;
 }
+:root[data-theme='dark'] .cense-header__action {
+  color: #0f172a;
+}
+:root[data-theme='dark'] .cense-header__action:hover {
+  color: var(--cense-red);
+}
 .cense-header__top {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, auto);
@@ -1093,7 +1099,11 @@ details.acc-disclose > .acc-disclose-body {
   border-radius: 2px;
   cursor: pointer;
 }
-.cense-header__action:hover { background: var(--surface-1); }
+.cense-header__action:hover {
+  background: var(--surface-1);
+  border-color: var(--cense-red);
+  color: var(--cense-red);
+}
 .cense-header__action:disabled { opacity: 0.5; cursor: default; }
 .cense-header__refreshed {
   font-size: 11px;

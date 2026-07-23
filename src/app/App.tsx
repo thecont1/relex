@@ -14,7 +14,7 @@ import { useReducedMotion } from '../hooks/useReducedMotion';
 import { fadeIn } from '../lib/motion';
 import type { GraphModel, ThemeMode } from '../lib/types';
 
-const SCALE_MODEL_BASE = 1.25;
+const SCALE_MODEL_BASE = 1.3;
 const NETWORK_SCALE_MIN = 0.6;
 const NETWORK_SCALE_MAX = 1.5;
 const NETWORK_SCALE_STEP = 0.1;
@@ -60,7 +60,7 @@ export function App() {
   const [highlightNodeId, setHighlightNodeId] = useState<string | null>(null);
   // Display fraction: 1.0 === 100% (the size the user calibrated). Multiplied
   // by SCALE_MODEL_BASE before it reaches the renderers.
-  const [networkScale, setNetworkScale] = useState(1.3);
+  const [networkScale, setNetworkScale] = useState(1);
   const modelScale = networkScale * SCALE_MODEL_BASE;
 
   const increaseNetworkScale = useCallback(() => {
