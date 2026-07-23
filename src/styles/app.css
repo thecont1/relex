@@ -1013,7 +1013,8 @@ details.acc-disclose > .acc-disclose-body {
   list-style: none;
   margin: 0;
   padding: 4px;
-  background: var(--surface-2);
+  /* Always white to match the search box — consistent in both themes. */
+  background: #ffffff;
   border: 1px solid var(--border-strong);
   border-radius: var(--r-sm);
   max-height: 280px;
@@ -1043,6 +1044,7 @@ details.acc-disclose > .acc-disclose-body {
 }
 :root[data-theme='dark'] .cense-header__search-option:hover,
 :root[data-theme='dark'] .cense-header__search-option:focus-visible {
+  background: #f0f0f0;
   color: #0f172a;
 }
 /* Stats row that replaces the CeNSE nav items in the second-level bar. */
