@@ -67,7 +67,7 @@ a:focus-visible {
 /* ---------- App layout ---------- */
 .app-shell {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   height: 100vh;
   overflow: hidden;
 }
@@ -251,6 +251,15 @@ body.focus-mode .app-header {
   /* Remove the bottom border so no edge line lingers at the top of the viewport. */
   border-bottom: none;
 }
+body.focus-mode .stage-summary {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
 body.focus-mode .controls-aside {
   position: absolute;
   top: 0;
@@ -267,11 +276,12 @@ body.focus-mode .app-body {
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
   height: 100%;
-  /* Pin the body to the second shell row. The shell's grid auto-places
+  /* Pin the body to the third shell row. The shell's grid auto-places
      children in order; with the skip-link + header (absolute in focus
-     mode) + focus-toggle + live-region siblings, the body would otherwise
-     end up in an implicit auto-sized row instead of the 1fr row. */
-  grid-row: 2;
+     mode) + stats bar (absolute in focus mode) + focus-toggle + live-region
+     siblings, the body would otherwise end up in an implicit auto-sized row
+     instead of the 1fr row. */
+  grid-row: 3;
   grid-column: 1;
 }
 body.focus-mode .stage,
@@ -927,11 +937,13 @@ details.acc-disclose > .acc-disclose-body {
   color: #0f172a;
 }
 :root[data-theme='dark'] .app-header__action:hover {
-  color: var(--cense-red);
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #dedddd;
 }
 .app-header__top {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, auto);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 24px;
   padding: 10px 28px;
@@ -994,10 +1006,9 @@ details.acc-disclose > .acc-disclose-body {
 .app-header__nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   padding: 0 28px;
-  border-top: 1px solid var(--border-subtle);
   background: #dedddd;
 }
 .app-header__search-wrap {

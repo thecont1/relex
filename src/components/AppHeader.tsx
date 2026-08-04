@@ -13,14 +13,13 @@
  *   - Second row: dataset stats (faculty, verticals, platforms, collaborations)
  *     replacing the old nav items so the header stays compact.
  */
-import { useEffect, useRef, useState } from 'react';
-import { animateCounter } from '../lib/motion';
+import { useEffect, useState } from 'react';
 import { searchFaculty } from '../lib/buildGraph';
 import { tenantConfig } from '../tenant/config';
+import { ExportControl } from './ExportControl';
 import type { GraphModel } from '../lib/types';
 
 interface AppHeaderProps {
-  refreshedAt: string | null;
   onReset: () => void;
   resetting: boolean;
   onRefresh: () => void;
@@ -36,13 +35,9 @@ interface AppHeaderProps {
   onClearSearch: () => void;
   /** Dataset for stats + faculty search. */
   graph: GraphModel;
-  /** IDs currently visible after filters/search (for the "Showing N / N" line). */
-  visibleNodeIds: Set<string>;
-  visibleEdgeIds: Set<string>;
 }
 
 export function AppHeader({
-  refreshedAt,
   onReset,
   resetting,
   onRefresh,
@@ -53,8 +48,6 @@ export function AppHeader({
   onSearchFocusNode,
   onClearSearch,
   graph,
-  visibleNodeIds,
-  visibleEdgeIds,
 }: AppHeaderProps) {
   const [localValue, setLocalValue] = useState(searchQuery);
 
@@ -79,6 +72,12 @@ export function AppHeader({
   return (
     <header className="app-header">
       <div className="app-header__top">
+        <img
+          className="app-header__logo"
+          src={branding.logo.src}
+          alt={branding.logo.alt}
+          draggable={false}
+        />
         <h1 className="app-header__title">
           {branding.title}
         </h1>
@@ -142,21 +141,9 @@ export function AppHeader({
             </ul>
           )}
         </div>
-
-        <img
-          className="app-header__logo"
-          src={branding.logo.src}
-          alt={branding.logo.alt}
-          draggable={false}
-        />
       </div>
 
-      <div className="app-header__nav" aria-label="Dataset summary">
-        <DatasetStats
-          graph={graph}
-          visibleNodeIds={visibleNodeIds}
-          visibleEdgeIds={visibleEdgeIds}
-        />
+      <div className="app-header__nav" aria-label="Dataset actions">
         <div className="app-header__actions">
           <button
             type="button"
@@ -177,81 +164,9 @@ export function AppHeader({
           >
             Refresh
           </button>
-          <span className="app-header__action-label" aria-hidden="true">Export</span>
-          <button
-            type="button"
-            className="app-header__action"
-            onClick={onExportPng}
-            aria-label="Export current view as PNG"
-          >
-            PNG
-          </button>
-          <button
-            type="button"
-            className="app-header__action"
-            onClick={onExportSvg}
-            aria-label="Export current view as SVG"
-          >
-            SVG
-          </button>
-          {refreshedAt && (
-            <span className="app-header__refreshed" title={refreshedAt}>
-              · refreshed {formatTime(refreshedAt)}
-            </span>
-          )}
+          <ExportControl onExportPng={onExportPng} onExportSvg={onExportSvg} />
         </div>
       </div>
     </header>
   );
-}
-
-/**
- * Stats row that replaces the nav items in the second-level header row.
- * Same animated counters as the previous StatsBar component, but inline
- * here to avoid an extra row of chrome above the graph canvas.
- */
-function DatasetStats({
-  graph,
-  visibleNodeIds,
-  visibleEdgeIds,
-}: {
-  graph: GraphModel;
-  visibleNodeIds: Set<string>;
-  visibleEdgeIds: Set<string>;
-}) {
-  const faculty = useRef<HTMLSpanElement | null>(null);
-  const verticals = useRef<HTMLSpanElement | null>(null);
-  const platforms = useRef<HTMLSpanElement | null>(null);
-  const collabs = useRef<HTMLSpanElement | null>(null);
-  const visibleNodes = useRef<HTMLSpanElement | null>(null);
-  const visibleEdges = useRef<HTMLSpanElement | null>(null);
-
-  useEffect(() => {
-    animateCounter(faculty, graph.counts.faculty, false);
-    animateCounter(platforms, graph.counts.platforms, false);
-    animateCounter(verticals, graph.counts.verticals, false);
-    animateCounter(collabs, graph.counts.edges['faculty-faculty'], false);
-  }, [graph]);
-
-  useEffect(() => {
-    if (visibleNodes.current) visibleNodes.current.textContent = String(visibleNodeIds.size);
-    if (visibleEdges.current) visibleEdges.current.textContent = String(visibleEdgeIds.size);
-  }, [visibleNodeIds, visibleEdgeIds]);
-
-  return (
-    <div className="app-header__stats" aria-label="Network summary">
-      <span className="app-header__stat"><strong ref={faculty}>0</strong> faculty</span>
-      <span className="app-header__stat"><strong ref={verticals}>0</strong> verticals</span>
-      <span className="app-header__stat"><strong ref={platforms}>0</strong> platforms</span>
-      <span className="app-header__stat"><strong ref={collabs}>0</strong> collaborations</span>
-      <span className="app-header__stat app-header__stat--muted">
-        Showing <strong ref={visibleNodes}>0</strong> / {graph.nodes.length} nodes,
-        {' '}<strong ref={visibleEdges}>0</strong> / {graph.edges.length} relationships
-      </span>
-    </div>
-  );
-}
-
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleString();
 }

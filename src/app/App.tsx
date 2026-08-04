@@ -9,6 +9,7 @@ import { AccessibleView } from '../components/AccessibleView';
 import { ErrorBanner, WarningBanner } from '../components/WarningBanner';
 import { FocusModeToggle } from '../components/FocusModeToggle';
 import { AppHeader } from '../components/AppHeader';
+import { StatsBar } from '../components/StatsBar';
 import { exportPng, exportSvg } from '../lib/exportGraph';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { fadeIn } from '../lib/motion';
@@ -177,7 +178,6 @@ export function App() {
     return (
       <div className="app-shell" ref={shellRef}>
         <AppHeader
-          refreshedAt={null}
           onReset={handleReset}
           resetting={false}
           onRefresh={handleSoftReset}
@@ -188,8 +188,6 @@ export function App() {
           onSearchFocusNode={() => {}}
           onClearSearch={() => {}}
           graph={emptyGraphModel}
-          visibleNodeIds={new Set()}
-          visibleEdgeIds={new Set()}
         />
         <main className="app-body" style={{ gridTemplateColumns: '1fr' }}>
           <div style={{ padding: 'var(--sp-5)' }}>
@@ -205,7 +203,6 @@ export function App() {
     <div className="app-shell" data-theme={theme} ref={shellRef}>
       <a className="skip-link" href="#main">Skip to main content</a>
       <AppHeader
-        refreshedAt={state.refreshedAt}
         onReset={handleReset}
         resetting={resetting}
         onRefresh={handleSoftReset}
@@ -223,8 +220,12 @@ export function App() {
         }}
         onClearSearch={() => { gs.clearSearch(); setHighlightNodeId(null); }}
         graph={state.graph}
+      />
+      <StatsBar
+        graph={state.graph}
         visibleNodeIds={gs.visibleNodeIds}
         visibleEdgeIds={gs.visibleEdgeIds}
+        refreshedAt={state.refreshedAt}
       />
       <main className="app-body" id="main">
         <ControlPanel
