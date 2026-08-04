@@ -1295,12 +1295,34 @@ details.acc-disclose > .acc-disclose-body {
   color: var(--text-muted);
   margin-left: 8px;
 }
+
+/* Showing-N/N figures pushed to the right edge of the bar; the refreshed
+   timestamp follows immediately after. */
+.stage-summary__showing {
+  margin-left: auto;
+}
+/* Timestamp inside the stats bar — placed to the right of the
+   showing-N/N figures. Matches the bar's type system: same size as the
+   surrounding stats, tabular numerals so the date/time digits align with
+   the counter figures, and the same muted label treatment. */
+.stage-summary__refreshed {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
 @media (max-width: 1100px) {
-  .app-header__top { grid-template-columns: 1fr auto; row-gap: 10px; }
-  .app-header__logo { grid-column: 2; grid-row: 1; }
+  .app-header__top { grid-template-columns: auto 1fr; row-gap: 10px; }
+  .app-header__logo { grid-column: 1; grid-row: 1; }
+  .app-header__title { grid-column: 2; grid-row: 1; }
   .app-header__search-wrap { grid-column: 1 / -1; width: 100%; }
 }
 @media (max-width: 760px) {
   .app-header__nav { flex-direction: column; align-items: flex-start; }
   .app-header__actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+  /* Touch targets: bump all toolbar actions to 44px on mobile. */
+  .app-header__action,
+  .export-control__primary,
+  .export-control__chevron,
+  .export-control__menuitem { min-height: 44px; }
 }

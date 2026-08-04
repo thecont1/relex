@@ -3,11 +3,28 @@ import { animateCounter } from '../lib/motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import type { GraphModel } from '../lib/types';
 
+/** Format an ISO timestamp as "4 Aug 2026 3:31:30 PM" — no dot, no comma. */
+function formatRefreshed(iso: string): string {
+  const d = new Date(iso);
+  const day = d.getDate();
+  const month = d.toLocaleString('en-GB', { month: 'short' });
+  const year = d.getFullYear();
+  const time = d.toLocaleString('en-GB', {
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  }).toUpperCase();
+  return `${day} ${month} ${year} ${time}`;
+}
+
 interface Props {
   graph: GraphModel;
   /** IDs currently visible (after filters/search). */
   visibleNodeIds: Set<string>;
   visibleEdgeIds: Set<string>;
+  /** ISO timestamp of last data refresh, or null if never refreshed. */
+  refreshedAt: string | null;
 }
 
 /**
@@ -15,7 +32,7 @@ interface Props {
  * mount to draw attention to the dataset. Under reduced motion, they
  * appear with their final values immediately.
  */
-export function StatsBar({ graph, visibleNodeIds, visibleEdgeIds }: Props) {
+export function StatsBar({ graph, visibleNodeIds, visibleEdgeIds, refreshedAt }: Props) {
   const reduced = useReducedMotion();
   const faculty = useRef<HTMLSpanElement | null>(null);
   const verticals = useRef<HTMLSpanElement | null>(null);
@@ -46,12 +63,17 @@ export function StatsBar({ graph, visibleNodeIds, visibleEdgeIds }: Props) {
       <span className="stat"><strong className="stat-num" ref={verticals}>0</strong> verticals</span>
       <span className="stat"><strong className="stat-num" ref={platforms}>0</strong> platforms</span>
       <span className="stat"><strong className="stat-num" ref={collabs}>0</strong> collaborations</span>
-      <span className="stat" style={{ marginLeft: 'auto', color: 'var(--text-muted)' }}>
+      <span className="stat stage-summary__showing" style={{ color: 'var(--text-muted)' }}>
         Showing <strong ref={visibleNodes} style={{ color: 'var(--text-primary)' }}>0</strong>
         {' / '}{graph.nodes.length} nodes, {' '}
         <strong ref={visibleEdges} style={{ color: 'var(--text-primary)' }}>0</strong>
         {' / '}{graph.edges.length} relationships
       </span>
+      {refreshedAt && (
+        <span className="stat stage-summary__refreshed" title={refreshedAt}>
+          refreshed {formatRefreshed(refreshedAt)}
+        </span>
+      )}
     </div>
   );
 }
