@@ -1101,21 +1101,193 @@ details.acc-disclose > .acc-disclose-body {
   text-transform: uppercase;
   margin-right: 4px;
 }
+/* ---------- Export control (split-button + menu) ----------
+   Text-led split button: "Export" primary action + a chevron that opens a
+   small menu of explicit format actions. No icons — a CSS caret stands in
+   for the disclosure affordance. Surfaces/borders reuse the same tokens as
+   Reset / Refresh so the three actions read as one coherent group. */
+.export-control {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 2px;
+  background: transparent;
+  overflow: visible; /* allow the menu to escape the row */
+  transition: background var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
+}
+.export-control:hover {
+  border-color: #0f172a;
+}
+.export-control__primary,
+.export-control__chevron {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  transition: background var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
+}
+.export-control__primary {
+  padding: 0 14px;
+  border-radius: 2px 0 0 2px;
+}
+.export-control__chevron {
+  padding: 0 10px;
+  border-left: 1px solid var(--border-subtle);
+  border-radius: 0 2px 2px 0;
+}
+.export-control:hover .export-control__chevron {
+  border-left-color: rgba(15, 23, 42, 0.18);
+}
+/* Inverted fill on hover/active — matches the existing Reset/Refresh hover. */
+.export-control__primary:hover,
+.export-control__chevron:hover,
+.export-control__primary:active,
+.export-control__chevron:active {
+  background: #0f172a;
+  color: #dedddd;
+}
+.export-control__chevron[aria-expanded="true"] {
+  background: #0f172a;
+  color: #dedddd;
+}
+/* CSS caret — typographic disclosure affordance, not an icon. */
+.export-control__caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  margin-top: 1px;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.export-control__chevron[aria-expanded="true"] .export-control__caret {
+  transform: rotate(180deg);
+}
+
+/* Menu — always rendered on a white surface to match the search dropdown,
+   so it reads consistently in both light and dark themes. */
+.export-control__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  min-width: 120px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  box-shadow: var(--shadow-2);
+  color: var(--text-primary);
+}
+.export-control__menu {
+  /* Match the header bar surface so the dropdown reads as part of the header. */
+  background: #dedddd;
+}
+.export-control__menuitem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 12px;
+  min-height: 40px;
+  background: transparent;
+  border: 0;
+  border-radius: 2px;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
+}
+.export-control__menuitem:hover,
+.export-control__menuitem:focus-visible {
+  background: var(--surface-3);
+  color: var(--text-primary);
+  outline: none;
+}
+.export-control__menuitem:focus-visible {
+  outline: 2px solid var(--brand-accent);
+  outline-offset: -2px;
+}
+.export-control__menuitem-label {
+  letter-spacing: 0.01em;
+}
+/* Selected default: a red underline tied to the wordmark accent (#d8232a).
+   No shaded background — the underline reads on the always-white menu surface
+   in both light and dark themes. */
+.export-control__menuitem[data-current="true"] .export-control__menuitem-label {
+  box-shadow: inset 0 -2px 0 0 #d8232a;
+  padding-bottom: 2px;
+}
+
+/* Dark theme: the header stays on the light logo-grey surface, so the action
+   text is dark. Hover/expanded/focus states must be re-stated at the same
+   specificity, otherwise the dark-mode color override (0,3,0) would win over
+   the base hover rule (0,2,0) and leave dark text on a dark fill. */
+:root[data-theme='dark'] .export-control__primary,
+:root[data-theme='dark'] .export-control__chevron {
+  color: #0f172a;
+}
+:root[data-theme='dark'] .export-control__chevron {
+  border-left-color: rgba(15, 23, 42, 0.18);
+}
+:root[data-theme='dark'] .export-control__primary:hover,
+:root[data-theme='dark'] .export-control__chevron:hover,
+:root[data-theme='dark'] .export-control__primary:active,
+:root[data-theme='dark'] .export-control__chevron:active,
+:root[data-theme='dark'] .export-control__chevron[aria-expanded="true"] {
+  background: #0f172a;
+  color: #dedddd;
+}
+:root[data-theme='dark'] .export-control__menuitem {
+  color: #0f172a;
+}
+/* The menu sits on the same #dedddd surface as the header; hover/focus need a
+   darker grey, not the dark-theme --surface-3 (which is near-black). */
+:root[data-theme='dark'] .export-control__menuitem:hover,
+:root[data-theme='dark'] .export-control__menuitem:focus-visible {
+  background: #c4c4c4;
+  color: #0f172a;
+}
+
 .app-header__action {
   background: transparent;
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
-  font: inherit;
-  font-size: 11px;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 10px 14px;
+  min-height: 40px;
   border-radius: 2px;
   cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
 }
 .app-header__action:hover {
-  background: var(--surface-1);
-  border-color: var(--cense-red);
-  color: var(--cense-red);
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #dedddd;
 }
 .app-header__action:disabled { opacity: 0.5; cursor: default; }
 .app-header__refreshed {
