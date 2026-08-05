@@ -121,7 +121,7 @@
 
 @media (prefers-contrast: more) {
   :root {
-    --color-text-high: var(--text-primary);
+    --color-text-high: #ffffff;
   }
   :root[data-theme='light'] {
     --color-text-high: #000000;

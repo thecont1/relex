@@ -761,6 +761,10 @@ body.ui-mobile details.acc-disclose > .acc-disclose-body li {
   body.ui-mobile .mobile-controls {
     background: var(--surface-0);
   }
+  body.ui-mobile .mobile-top-bar__menu,
+  body.ui-mobile .mobile-top-bar__wordmark {
+    color: var(--color-text-high) !important;
+  }
   body.ui-mobile .mobile-sheet {
     border-top-width: 2px;
   }
@@ -768,6 +772,9 @@ body.ui-mobile details.acc-disclose > .acc-disclose-body li {
   body.ui-mobile .mobile-top-bar__menu,
   body.ui-mobile .mobile-sheet__close {
     border-width: 2px;
+  }
+  body.ui-mobile .accessible-view .is-focus-dimmed {
+    opacity: 1;
   }
 }
 
