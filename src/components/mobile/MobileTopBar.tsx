@@ -12,10 +12,7 @@ interface Props {
   onMore: () => void;
 }
 
-/**
- * Mobile top bar: text-only institutional wordmark, menu trigger, and search.
- * The artwork-heavy desktop lockup is intentionally omitted on small screens.
- */
+/** Mobile top bar: tenant logo + institutional wordmark, menu, and search. */
 export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, onClearSearch, onMore }: Props) {
   const [localValue, setLocalValue] = useState(searchQuery);
 
@@ -28,14 +25,26 @@ export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, 
     setLocalValue('');
   };
 
-  const wordmark = titleCaseWordmark(tenantConfig.branding.title);
+  const branding = tenantConfig.branding;
 
   return (
     <header className="mobile-top-bar">
       <div className="mobile-top-bar__row">
         <div className="mobile-top-bar__brand">
-          <h1 className="mobile-top-bar__wordmark">{wordmark}</h1>
-          {tenantConfig.branding.logo.alt && <span className="mobile-top-bar__support">{tenantConfig.branding.logo.alt}</span>}
+          {branding.logo.src && (
+            <img
+              className="mobile-top-bar__logo"
+              src={branding.logo.src}
+              alt={branding.logo.alt}
+              draggable={false}
+            />
+          )}
+          <h1
+            className="mobile-top-bar__wordmark"
+            style={{ color: branding.colorAccent }}
+          >
+            {branding.title.toLocaleUpperCase()}
+          </h1>
         </div>
         <button
           type="button"
@@ -88,13 +97,4 @@ export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, 
       </div>
     </header>
   );
-}
-
-function titleCaseWordmark(value: string): string {
-  if (value !== value.toUpperCase()) return value;
-  const minorWords = new Set(['and', 'for', 'of', 'the']);
-  return value.toLowerCase().split(/\s+/).map((word, index) => {
-    if (index > 0 && minorWords.has(word)) return word;
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  }).join(' ');
 }

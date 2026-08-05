@@ -52,7 +52,8 @@ body.ui-mobile .stage {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--surface-0);
+  /* Match the opaque tenant logo lockup, as in the widescreen header. */
+  background: #dedddd;
   border-bottom: 1px solid var(--border-subtle);
   padding: var(--sp-2) var(--sp-3);
   display: flex;
@@ -68,35 +69,37 @@ body.ui-mobile .stage {
 }
 
 .mobile-top-bar__brand {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sp-2);
   min-width: 0;
   padding-right: var(--sp-3);
 }
 
-.mobile-top-bar__wordmark {
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-  line-height: 1.12;
-  white-space: normal;
-  max-width: 28ch;
+.mobile-top-bar__logo {
+  display: block;
+  width: clamp(72px, 24vw, 92px);
+  height: auto;
+  flex-shrink: 0;
+  user-select: none;
 }
 
-.mobile-top-bar__support {
-  color: var(--text-muted);
-  font-size: 0.68rem;
-  letter-spacing: 0.035em;
+.mobile-top-bar__wordmark {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  margin: 0;
+  white-space: normal;
+  overflow-wrap: normal;
 }
 
 .mobile-top-bar__menu {
   background: transparent;
-  border: 1px solid var(--border-strong);
+  border: 1px solid #94a3b8;
   border-radius: var(--r-sm);
-  color: var(--text-secondary);
+  color: #0f172a;
   padding: 8px 10px;
   cursor: pointer;
   min-height: var(--mobile-touch-target);
@@ -107,7 +110,7 @@ body.ui-mobile .stage {
   flex-shrink: 0;
 }
 .mobile-top-bar__menu:active { transform: translateY(1px); }
-.mobile-top-bar__menu:hover { background: var(--surface-3); }
+.mobile-top-bar__menu:hover { background: #cfcfcf; }
 
 .mobile-top-bar__search-wrap {
   position: relative;
@@ -115,9 +118,9 @@ body.ui-mobile .stage {
 
 .mobile-top-bar__search-input {
   width: 100%;
-  background: var(--surface-2);
-  color: var(--text-primary);
-  border: 1px solid var(--border-strong);
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #94a3b8;
   border-radius: var(--r-sm);
   padding: 10px 14px;
   font-size: var(--fs-base);
@@ -131,7 +134,7 @@ body.ui-mobile .stage {
   border-color: var(--focus-ring);
 }
 .mobile-top-bar__search-input::placeholder {
-  color: var(--text-muted);
+  color: #64748b;
 }
 
 .mobile-top-bar__search-dropdown {
