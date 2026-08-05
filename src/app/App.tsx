@@ -205,6 +205,7 @@ export function App() {
           onExportPng={() => {}}
           onExportSvg={() => {}}
           exportEnabled={false}
+          exportDisabledReason="Export is unavailable while the workbook failed to load."
           searchQuery=""
           onSearch={() => {}}
           onSearchFocusNode={() => {}}

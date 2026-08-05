@@ -26,6 +26,8 @@ interface AppHeaderProps {
   onExportPng: () => void;
   onExportSvg: () => void;
   exportEnabled: boolean;
+  /** Reason shown when export is disabled (tooltip / aria). */
+  exportDisabledReason?: string;
   /** Sets the global search query (drives the faculty dropdown below). */
   onSearch: (query: string) => void;
   /** Current search query (controlled). */
@@ -45,6 +47,7 @@ export function AppHeader({
   onExportPng,
   onExportSvg,
   exportEnabled,
+  exportDisabledReason,
   onSearch,
   searchQuery,
   onSearchFocusNode,
@@ -170,6 +173,7 @@ export function AppHeader({
             onExportPng={onExportPng}
             onExportSvg={onExportSvg}
             disabled={!exportEnabled}
+            disabledReason={exportDisabledReason}
           />
         </div>
       </div>
