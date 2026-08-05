@@ -13,12 +13,8 @@ interface Props {
 }
 
 /**
- * Mobile top bar: logo + wordmark + hamburger menu trigger + search.
- * Sticky at top with backdrop blur. No theme toggle — that lives in the
- * More sheet now.
- *
- * Branding (logo, title) comes from tenantConfig, same source as the
- * desktop AppHeader.
+ * Mobile top bar: text-only institutional wordmark, menu trigger, and search.
+ * The artwork-heavy desktop lockup is intentionally omitted on small screens.
  */
 export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, onClearSearch, onMore }: Props) {
   const [localValue, setLocalValue] = useState(searchQuery);
@@ -32,27 +28,20 @@ export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, 
     setLocalValue('');
   };
 
-  const branding = tenantConfig.branding;
+  const wordmark = titleCaseWordmark(tenantConfig.branding.title);
 
   return (
     <header className="mobile-top-bar">
       <div className="mobile-top-bar__row">
         <div className="mobile-top-bar__brand">
-          {branding.logo.src && (
-            <img
-              className="mobile-top-bar__logo"
-              src={branding.logo.src}
-              alt={branding.logo.alt}
-              draggable={false}
-            />
-          )}
-          <span className="mobile-top-bar__wordmark">{branding.title}</span>
+          <h1 className="mobile-top-bar__wordmark">{wordmark}</h1>
+          {tenantConfig.branding.logo.alt && <span className="mobile-top-bar__support">{tenantConfig.branding.logo.alt}</span>}
         </div>
         <button
           type="button"
           className="mobile-top-bar__menu"
           onClick={onMore}
-          aria-label="More options"
+          aria-label="Open menu"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <line x1="3" y1="6" x2="21" y2="6" />
@@ -79,9 +68,10 @@ export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, 
           role="combobox"
           aria-expanded={matches.length > 0}
           aria-autocomplete="list"
+          aria-controls="mobile-search-results"
         />
         {matches.length > 0 && (
-          <ul className="mobile-top-bar__search-dropdown" role="listbox">
+          <ul id="mobile-search-results" className="mobile-top-bar__search-dropdown" role="listbox">
             {matches.map(m => (
               <li key={m.id} role="option" aria-selected="false">
                 <button
@@ -98,4 +88,13 @@ export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, 
       </div>
     </header>
   );
+}
+
+function titleCaseWordmark(value: string): string {
+  if (value !== value.toUpperCase()) return value;
+  const minorWords = new Set(['and', 'for', 'of', 'the']);
+  return value.toLowerCase().split(/\s+/).map((word, index) => {
+    if (index > 0 && minorWords.has(word)) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
 }

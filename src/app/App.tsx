@@ -73,6 +73,13 @@ export function App() {
   const isMobile = useMediaQuery('(pointer: coarse), (max-width: 900px)');
   const [mobileSheet, setMobileSheet] = useState<SheetType>('none');
 
+  // Entering a mobile viewport changes the interaction priority: the semantic
+  // reading surface becomes the first view, while graph modes remain available
+  // from the View sheet. This also handles resizing an already-mounted app.
+  useEffect(() => {
+    if (isMobile) gs.setView('accessible');
+  }, [isMobile, gs.setView]);
+
   const increaseNetworkScale = useCallback(() => {
     setNetworkScale(v => Math.min(NETWORK_SCALE_MAX, roundScale(v + NETWORK_SCALE_STEP)));
   }, []);
@@ -224,9 +231,8 @@ export function App() {
           onSearchFocusNode={(id) => {
             gs.setSearchFocus(id);
             gs.setView('accessible');
-            gs.openDrawer(id);
             setHighlightNodeId(id);
-            setLiveMessage(`Focused ${state.graph.nodes.find(n => n.id === id)?.label ?? 'faculty member'}.`);
+            setLiveMessage(`Focused ${state.graph.nodes.find(n => n.id === id)?.label ?? 'entity'} in Accessible View.`);
           }}
           onClearSearch={() => { gs.clearSearch(); setHighlightNodeId(null); }}
           onMore={() => setMobileSheet('more')}
@@ -302,6 +308,12 @@ export function App() {
                 graph={state.graph}
                 filters={gs.filters}
                 onSelectNode={(id) => { gs.openDrawer(id); setHighlightNodeId(id); }}
+                focusedNodeId={highlightNodeId}
+                onFocusNode={(id) => {
+                  setHighlightNodeId(id);
+                  gs.setSearchFocus(id);
+                  if (!id) gs.clearSearch();
+                }}
                 compact
               />
             )}
@@ -412,6 +424,12 @@ export function App() {
               graph={state.graph}
               filters={gs.filters}
               onSelectNode={(id) => { gs.openDrawer(id); setHighlightNodeId(id); }}
+              focusedNodeId={highlightNodeId}
+              onFocusNode={(id) => {
+                setHighlightNodeId(id);
+                gs.setSearchFocus(id);
+                if (!id) gs.clearSearch();
+              }}
             />
           )}
         </section>

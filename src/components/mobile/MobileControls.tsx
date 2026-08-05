@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { MobileSheet } from './MobileSheet';
 import { sectorColor } from '../../lib/colorSystem';
 import { Legend } from '../Legend';
@@ -67,6 +67,12 @@ export function MobileControls(props: Props) {
       <div
         className="mobile-stats-chip"
         onClick={() => setStatsExpanded(e => !e)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            setStatsExpanded(expanded => !expanded);
+          }
+        }}
         role="button"
         tabIndex={0}
         aria-label="Network summary"
@@ -81,10 +87,13 @@ export function MobileControls(props: Props) {
           <span className="mobile-stats-chip__sep">·</span>
           <span className="mobile-stats-chip__pair">{c.edges['faculty-faculty']} Collaborations</span>
         </span>
-        {refreshedShort && <span className="mobile-stats-chip__refreshed">· Refreshed {refreshedShort}</span>}
+        <span className="mobile-stats-chip__meta">
+          <span>Showing {props.visibleNodeIds.size}/{graph.nodes.length} nodes · {props.visibleEdgeIds.size}/{graph.edges.length} relationships</span>
+          {refreshedShort && <span className="mobile-stats-chip__refreshed">Refreshed {refreshedShort}</span>}
+        </span>
         {statsExpanded && (
           <span className="mobile-stats-chip__expanded">
-            Showing {props.visibleNodeIds.size}/{graph.nodes.length} nodes · {props.visibleEdgeIds.size}/{graph.edges.length} relationships
+            Counts reflect the active sector and relationship filters.
           </span>
         )}
       </div>
@@ -228,57 +237,29 @@ export function MobileControls(props: Props) {
       <MobileSheet
         open={openSheet === 'more'}
         onClose={onCloseSheet}
-        title="Options"
+        title="Menu"
       >
         <div className="mobile-more-list">
-          <button
-            type="button"
-            className="mobile-more-item"
-            onClick={() => { props.onToggleTheme(); }}
-          >
-            Switch to {props.theme === 'dark' ? 'light' : 'dark'} mode
-          </button>
-          <button
-            type="button"
-            className="mobile-more-item"
-            onClick={() => { props.onRefresh(); onCloseSheet(); }}
-          >
-            Refresh data
-          </button>
-          <button
-            type="button"
-            className="mobile-more-item"
-            onClick={() => { props.onExportPng(); onCloseSheet(); }}
-          >
-            Export PNG
-          </button>
-          <button
-            type="button"
-            className="mobile-more-item"
-            onClick={() => { props.onExportSvg(); onCloseSheet(); }}
-          >
-            Export SVG
-          </button>
-          <details className="mobile-more-item mobile-more-item--expandable">
-            <summary>Legend: node types</summary>
-            <div className="mobile-more-legend">
-              <Legend />
-            </div>
-          </details>
-          <button
-            type="button"
-            className="mobile-more-item"
-            onClick={() => { onCloseSheet(); onOpenSheet('about'); }}
-          >
-            About this diagram
-          </button>
-          <button
-            type="button"
-            className="mobile-more-item mobile-more-item--danger"
-            onClick={() => { props.onReset(); onCloseSheet(); }}
-          >
-            Reset
-          </button>
+          <MenuGroup title="Display">
+            <button type="button" className="mobile-more-item" onClick={props.onToggleTheme}>
+              Switch to {props.theme === 'dark' ? 'light' : 'dark'} mode
+            </button>
+            <details className="mobile-more-item mobile-more-item--expandable">
+              <summary>Legend: node types</summary>
+              <div className="mobile-more-legend"><Legend /></div>
+            </details>
+          </MenuGroup>
+          <MenuGroup title="Data">
+            <button type="button" className="mobile-more-item" onClick={() => { props.onRefresh(); onCloseSheet(); }}>Refresh data</button>
+            <button type="button" className="mobile-more-item" onClick={() => { props.onExportPng(); onCloseSheet(); }}>Export PNG</button>
+            <button type="button" className="mobile-more-item" onClick={() => { props.onExportSvg(); onCloseSheet(); }}>Export SVG</button>
+          </MenuGroup>
+          <MenuGroup title="Help">
+            <button type="button" className="mobile-more-item" onClick={() => { onCloseSheet(); onOpenSheet('about'); }}>About this diagram</button>
+          </MenuGroup>
+          <MenuGroup title="Reset">
+            <button type="button" className="mobile-more-item mobile-more-item--danger" onClick={() => { props.onReset(); onCloseSheet(); }}>Reset application</button>
+          </MenuGroup>
         </div>
       </MobileSheet>
 
@@ -311,5 +292,15 @@ export function MobileControls(props: Props) {
         </div>
       </MobileSheet>
     </div>
+  );
+}
+
+function MenuGroup({ title, children }: { title: string; children: ReactNode }) {
+  const headingId = `mobile-menu-${title.toLowerCase()}`;
+  return (
+    <section className="mobile-more-group" aria-labelledby={headingId}>
+      <h3 id={headingId} className="mobile-more-group__title">{title}</h3>
+      <div className="mobile-more-group__items">{children}</div>
+    </section>
   );
 }
