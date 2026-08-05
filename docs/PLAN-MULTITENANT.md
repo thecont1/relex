@@ -157,7 +157,9 @@ The docs describe per-tenant static deploys but no pipeline exists yet.
 
 ## Decisions (resolved by the user, 2026-08-06)
 
-1. **Repo visibility** — RESOLVED: GitHub repo is now **private**.
+1. **Repo visibility** — RESOLVED: repo stays **public** for portfolio
+   purposes, covered by the BSL source-available license in `LICENSE.md`
+   (the design doc's explicit alternative to going private).
 2. **The two reds** — RESOLVED: `#ED2229` (the tenant config value) is
    canonical; all core CSS resolves the accent from the config at runtime.
 3. **Deploy target** — RESOLVED: **Cloudflare Pages**. Projects `relex-cense`
