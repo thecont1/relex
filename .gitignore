@@ -10,3 +10,4 @@ tenants/*/public/data/*.xlsx
 !tenants/test-dept/public/data/*.xlsx
 
 DESIGN_PLAN_2026AUG.md
+.playwright-mcp
