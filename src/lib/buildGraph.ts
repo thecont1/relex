@@ -186,3 +186,16 @@ export function searchFaculty(graph: GraphModel, query: string): GraphNode[] {
     n.label.toLowerCase().includes(q)
   );
 }
+
+/** Search every entity type for the mobile lookup-first experience. */
+export function searchEntities(graph: GraphModel, query: string): GraphNode[] {
+  const q = query.trim().toLocaleLowerCase();
+  if (!q) return [];
+  return graph.nodes
+    .filter(node => node.label.toLocaleLowerCase().includes(q))
+    .sort((a, b) => {
+      const aStarts = a.label.toLocaleLowerCase().startsWith(q) ? 0 : 1;
+      const bStarts = b.label.toLocaleLowerCase().startsWith(q) ? 0 : 1;
+      return aStarts - bStarts || a.label.localeCompare(b.label);
+    });
+}

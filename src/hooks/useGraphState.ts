@@ -12,6 +12,18 @@ import type {
   ViewMode
 } from '../lib/types';
 
+/**
+ * Synchronous boot-time check for whether the device should default to
+ * the mobile/accessible view. Called inside useState's initializer so
+ * the initial render is correct without a flash of the visual graph.
+ *
+ * Returns true when `(pointer: coarse)` OR `(max-width: 900px)` matches.
+ */
+function isCoarseOrNarrow(): boolean {
+  if (typeof window === 'undefined' || !window.matchMedia) return false;
+  return window.matchMedia('(pointer: coarse), (max-width: 900px)').matches;
+}
+
 export interface GraphStateApi {
   filters: GraphFilters;
   drawer: DrawerState;
@@ -26,6 +38,8 @@ export interface GraphStateApi {
   toggleRelationships: () => void;
   toggleSector: (s: string) => void;
   clearSectors: () => void;
+  /** Direct functional updater for filters — used by mobile filter chips. */
+  setFilters: (updater: (prev: GraphFilters) => GraphFilters) => void;
 
   setSearchQuery: (q: string) => void;
   setSearchFocus: (id: string | null) => void;
@@ -58,7 +72,7 @@ export function useGraphState(graph: GraphModel | null): GraphStateApi {
   });
   const [drawer, setDrawer] = useState<DrawerState>({ open: false, nodeId: null });
   const [search, setSearch] = useState<SearchState>({ query: '', focusId: null });
-  const [view, setView] = useState<ViewMode>('visual');
+  const [view, setView] = useState<ViewMode>(() => isCoarseOrNarrow() ? 'accessible' : 'visual');
   const [renderMode, setRenderMode] = useState<RenderMode>('flat');
   const [focusMode, setFocusMode] = useState(false);
 
@@ -153,6 +167,7 @@ export function useGraphState(graph: GraphModel | null): GraphStateApi {
     const out = new Set<string>();
     if (!graph) return out;
     for (const e of graph.edges) {
+      if (!filters.showRelationships) continue;
       if (e.type === 'faculty-faculty' && !filters.showCollaborations) continue;
       if (e.type === 'faculty-platform' && !filters.showPlatforms) continue;
       if (e.type === 'faculty-vertical' && !filters.showVerticals) continue;
@@ -165,6 +180,7 @@ export function useGraphState(graph: GraphModel | null): GraphStateApi {
   return {
     filters, drawer, search, view, renderMode, focusMode,
     togglePlatforms, toggleVerticals, toggleCollaborations, toggleRelationships, toggleSector, clearSectors,
+    setFilters,
     setSearchQuery, setSearchFocus, clearSearch,
     openDrawer, closeDrawer,
     setView, setRenderMode, toggleFocusMode, softReset, resetAll,
