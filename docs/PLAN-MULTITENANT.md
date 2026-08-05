@@ -1,7 +1,7 @@
 # Multi-Tenant Architecture — Execution Plan
 
-> **Status (2026-08-06): EXECUTED.** All phases complete except the
-> credential-dependent part of 6.1 (Pages project creation + first deploy).
+> **Status (2026-08-06): EXECUTED.** All phases complete, including first
+> Cloudflare Pages deployments of both tenants (branch preview URLs).
 > See the commit history on `arch/multitenant` and `CHANGELOG.md` [Unreleased].
 
 Branch: `arch/multitenant`
@@ -131,13 +131,11 @@ contract for now. In scope:
 
 The docs describe per-tenant static deploys but no pipeline exists yet.
 
-- [~] **6.1 Pick the first deploy target** (Cloudflare Pages is named in the
+- [x] **6.1 Pick the first deploy target** (Cloudflare Pages is named in the
   design doc). Create one Pages project per tenant (`relex-cense`,
   `relex-test-dept`) and add `deploy:{slug}` scripts
   (`wrangler pages deploy dist/{slug} --project-name=relex-{slug}`).
-  Requires the user's Cloudflare credentials — coordinate before running.
-  → **Partially done:** `deploy:{slug}` scripts and docs are in place; Pages
-  project creation and the first deploy remain (need Cloudflare credentials).
+  → **Done:** projects created and both tenants deployed (branch previews).
 - [x] **6.2 Document the deploy step** in `TENANT_ONBOARDING.md` step 6 with
   the concrete command.
 - [x] **6.3 (Decision) Intranet deployments** stay manual: document handing
@@ -157,14 +155,19 @@ The docs describe per-tenant static deploys but no pipeline exists yet.
 - [x] **7.5** License check: `LICENSE.md` is BSL, README contains no
   "fork and self-host" framing (already true — re-verify after edits).
 
-## Open decisions for the user (not agent-resolvable)
+## Decisions (resolved by the user, 2026-08-06)
 
-1. **Repo visibility** — make the GitHub repo private? (Phase 0.2)
-2. **The two reds** — tenant config says `#ed2229`, CSS says `#d8232a`. Which
-   is canonical? (Phase 3.1)
-3. **Deploy target & credentials** — Cloudflare Pages? Something else?
-   (Phase 6)
-4. **Product naming** (design doc Step 5) — README already uses "relex" as the
-   product name with white-labeled tenants. Confirm that's the final call.
-5. **Domain-model generalization** — confirm "standard schema only" scope for
-   this branch (Phase 4), with fully custom domain models deferred.
+1. **Repo visibility** — RESOLVED: GitHub repo is now **private**.
+2. **The two reds** — RESOLVED: `#ED2229` (the tenant config value) is
+   canonical; all core CSS resolves the accent from the config at runtime.
+3. **Deploy target** — RESOLVED: **Cloudflare Pages**. Projects `relex-cense`
+   and `relex-test-dept` created; first deployments live at
+   `https://arch-multitenant.relex-cense.pages.dev` and
+   `https://arch-multitenant.relex-test-dept.pages.dev`. The apex
+   `relex-{slug}.pages.dev` URLs serve production (branch `main`) and will go
+   live on the first deploy after merge to main.
+4. **Product naming** — RESOLVED: **"relex"** is the product name; tenants
+   are white-labeled instances.
+5. **Domain-model generalization** — RESOLVED: **standard schema only** for
+   this branch; fully custom domain models are deferred (see "Schema
+   limitation" in TENANT_ONBOARDING.md).
