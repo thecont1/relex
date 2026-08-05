@@ -1248,11 +1248,11 @@ details.acc-disclose > .acc-disclose-body {
 .export-control__menuitem-label {
   letter-spacing: 0.01em;
 }
-/* Selected default: a red underline tied to the wordmark accent (#d8232a).
+/* Selected default: an underline in the tenant accent color.
    No shaded background — the underline reads on the always-white menu surface
    in both light and dark themes. */
 .export-control__menuitem[data-current="true"] .export-control__menuitem-label {
-  box-shadow: inset 0 -2px 0 0 #d8232a;
+  box-shadow: inset 0 -2px 0 0 var(--tenant-accent, #0066cc);
   padding-bottom: 2px;
 }
 

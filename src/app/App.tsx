@@ -110,10 +110,12 @@ export function App() {
 
   // Tenant branding → CSS custom properties. The header accent color and
   // background are driven by the build-time tenant config so the same CSS
-  // works for every tenant without hardcoded brand colors.
+  // works for every tenant without hardcoded brand colors. --brand-accent is
+  // the design-token alias of the same accent.
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty('--tenant-accent', tenantConfig.branding.colorAccent);
+    root.style.setProperty('--brand-accent', tenantConfig.branding.colorAccent);
     root.style.setProperty('--tenant-header-bg', tenantConfig.branding.headerBackground ?? '#dedddd');
   }, []);
 

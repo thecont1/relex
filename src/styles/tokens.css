@@ -32,7 +32,7 @@
 
   /* --- Semantic --- */
   --focus-ring: #ffd166;
-  --brand-accent: #ed2229;  /* Default accent; overridden by tenant config at runtime */
+  --brand-accent: #0066cc;  /* Generic fallback; overridden by tenant config at runtime */
   --danger: #f47174;
   --danger-bg: #2a1416;
   --warning: #f0b860;
@@ -98,7 +98,7 @@
   --text-inverse: #ffffff;
 
   --focus-ring: #b7791f;
-  --brand-accent: #ed2229;  /* Default accent; overridden by tenant config at runtime */
+  --brand-accent: #0066cc;  /* Generic fallback; overridden by tenant config at runtime */
   --danger: #b4232a;
   --danger-bg: #fff1f2;
   --warning: #9a5b00;
