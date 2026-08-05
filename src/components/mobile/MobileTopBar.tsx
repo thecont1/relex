@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { searchFaculty } from '../../lib/buildGraph';
-import type { GraphModel, ThemeMode } from '../../lib/types';
+import { tenantConfig } from '../../tenant/config';
+import type { GraphModel } from '../../lib/types';
 
 interface Props {
   graph: GraphModel;
@@ -9,19 +10,17 @@ interface Props {
   onSearchFocusNode: (id: string) => void;
   onClearSearch: () => void;
   onMore: () => void;
-  theme: ThemeMode;
-  onToggleTheme: () => void;
 }
 
 /**
- * Mobile top bar: wordmark + search input + More trigger.
- * Sticky at top with backdrop blur. No icons — all text labels.
+ * Mobile top bar: logo + wordmark + hamburger menu trigger + search.
+ * Sticky at top with backdrop blur. No theme toggle — that lives in the
+ * More sheet now.
  *
- * Search uses the same searchFaculty pipeline as the desktop AppHeader.
- * Results appear as a dropdown under the input. Selecting a result on
- * mobile is handled by the parent (switches to accessible view + opens detail).
+ * Branding (logo, title) comes from tenantConfig, same source as the
+ * desktop AppHeader.
  */
-export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, onClearSearch, onMore, theme, onToggleTheme }: Props) {
+export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, onClearSearch, onMore }: Props) {
   const [localValue, setLocalValue] = useState(searchQuery);
 
   useEffect(() => { setLocalValue(searchQuery); }, [searchQuery]);
@@ -33,34 +32,40 @@ export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, 
     setLocalValue('');
   };
 
+  const branding = tenantConfig.branding;
+
   return (
     <header className="mobile-top-bar">
       <div className="mobile-top-bar__row">
-        <span className="mobile-top-bar__wordmark">CeNSE Ecosystem</span>
-        <div className="mobile-top-bar__actions">
-          <button
-            type="button"
-            className="mobile-top-bar__theme"
-            onClick={onToggleTheme}
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-          >
-            {theme === 'dark' ? 'Light' : 'Dark'}
-          </button>
-          <button
-            type="button"
-            className="mobile-top-bar__more"
-            onClick={onMore}
-            aria-label="More options"
-          >
-            More
-          </button>
+        <div className="mobile-top-bar__brand">
+          {branding.logo.src && (
+            <img
+              className="mobile-top-bar__logo"
+              src={branding.logo.src}
+              alt={branding.logo.alt}
+              draggable={false}
+            />
+          )}
+          <span className="mobile-top-bar__wordmark">{branding.title}</span>
         </div>
+        <button
+          type="button"
+          className="mobile-top-bar__menu"
+          onClick={onMore}
+          aria-label="More options"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
       </div>
       <div className="mobile-top-bar__search-wrap">
         <input
           type="search"
           className="mobile-top-bar__search-input"
-          placeholder="Search faculty, verticals, platforms…"
+          placeholder="Search faculty…"
           value={localValue}
           onChange={(e) => { setLocalValue(e.target.value); onSearch(e.target.value); }}
           onKeyDown={(e) => {
