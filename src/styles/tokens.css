@@ -20,6 +20,9 @@
   --text-muted: #9a948a;      /* 6.1:1 on surface-0 — passes AA with margin */
   --text-inverse: #0b0d10;
 
+  /* High-contrast text token — used by prefers-contrast: more overrides. */
+  --color-text-high: var(--text-primary);
+
   /* --- Sector palette (colorblind-safe, distinguishable in monochrome) --- */
   /* Sectors are derived dynamically from the workbook; these are fallbacks. */
   --sector-strategic:    #f0b860;  /* warm amber   — Strategic Sector */
@@ -112,5 +115,15 @@
     --dur-fast: 0ms;
     --dur-base: 0ms;
     --dur-slow: 0ms;
+    --dur-focus: 0ms;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-text-high: var(--text-primary);
+  }
+  :root[data-theme='light'] {
+    --color-text-high: #000000;
   }
 }
