@@ -10,7 +10,7 @@
     "build": "tsc -b && vite build",
     "build:cense": "TENANT=cense tsc -b && TENANT=cense vite build",
     "build:test-dept": "TENANT=test-dept tsc -b && TENANT=test-dept vite build",
-    "build:all": "bun run build:cense && bun run build:test-dept",
+    "build:all": "bun run scripts/build-all.ts",
     "preview": "vite preview --port 4173",
     "preview:cense": "TENANT=cense vite preview --port 4173",
     "preview:test-dept": "TENANT=test-dept vite preview --port 4173",
