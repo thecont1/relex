@@ -45,7 +45,11 @@ export interface EdgeTypeConfig {
 /**
  * Explicit logical-role → sheet-name mapping. The core engine consumes six
  * fixed roles; this maps each role to the tenant's actual sheet name.
- * When omitted, a name heuristic is used (works for the standard schema).
+ * REQUIRED at build time (validated in vite.config.ts) — a config without a
+ * complete roles mapping fails the build, because the runtime engine throws
+ * on unresolvable roles. Optional here only because this type also describes
+ * the non-Vite fallback config; the name-heuristic in validateWorkbook is a
+ * defensive fallback, not a supported configuration.
  */
 export interface TenantSchemaRoles {
   platforms: string;
@@ -59,7 +63,7 @@ export interface TenantSchemaRoles {
 export interface TenantSchema {
   /** Map of sheet name → required column names. */
   sheets: Record<string, string[]>;
-  /** Explicit role → sheet-name mapping (preferred over the heuristic). */
+  /** Explicit role → sheet-name mapping (required at build time). */
   roles?: TenantSchemaRoles;
   entityTypes: Record<string, EntityTypeConfig>;
   edgeTypes: Record<string, EdgeTypeConfig>;

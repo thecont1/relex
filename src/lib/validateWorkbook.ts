@@ -28,8 +28,9 @@ type RawRows = Record<string, unknown>[];
 // The config stores sheets as a map of sheet-name → required-columns.
 // We need the reverse: given a logical role (platforms, faculty, etc.),
 // find the sheet name and columns. The explicit `schema.roles` mapping in
-// the tenant config is the source of truth; a name heuristic is kept only
-// as a fallback for configs that don't declare roles.
+// the tenant config is the source of truth and is required at build time
+// (vite.config.ts fails the build without it). The name heuristic below is
+// a defensive fallback only — e.g. when running outside the Vite build.
 const schema = tenantConfig.schema;
 
 // Build a lookup from the config's sheet map.
@@ -39,10 +40,11 @@ const SHEET_COLUMNS: Record<string, readonly string[]> = schema.sheets;
 // Logical role → sheet name mapping.
 const ROLE_TO_SHEET: Record<string, string> = {};
 if (schema.roles) {
-  // Explicit mapping from the tenant config — preferred path.
+  // Explicit mapping from the tenant config — the only supported path for
+  // built bundles (build-time validation enforces its presence).
   Object.assign(ROLE_TO_SHEET, schema.roles);
 } else {
-  // Fallback heuristic for configs without an explicit roles mapping:
+  // Defensive fallback for non-Vite contexts (tests, fallback config):
   // derive roles from sheet names. Works for the standard schema.
   for (const sheetName of Object.keys(SHEET_COLUMNS)) {
     const lower = sheetName.toLowerCase();

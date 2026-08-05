@@ -30,7 +30,8 @@ interface TenantConfig {
   dataSource: { type: string; path: string; headers?: Record<string, string> };
   schema: {
     sheets: Record<string, string[]>;
-    roles?: {
+    /** Required at build time — see validateTenantConfig. */
+    roles: {
       platforms: string;
       faculty: string;
       facultyPlatforms: string;
@@ -100,6 +101,10 @@ function validateTenantConfig(config: TenantConfig, slug: string): void {
   for (const [sheet, cols] of Object.entries(sheets)) {
     need(Array.isArray(cols) && cols.length > 0, `schema.sheets["${sheet}"] must list required columns`);
   }
+  // schema.roles is REQUIRED. The runtime engine calls requireSheet() for
+  // every role and throws when a mapping is missing, so a config without a
+  // complete roles mapping would build into a bundle that deterministically
+  // crashes at workbook load. Fail the build instead of warning.
   if (config.schema?.roles) {
     for (const role of SCHEMA_ROLES) {
       const sheetName = config.schema.roles[role];
@@ -109,7 +114,7 @@ function validateTenantConfig(config: TenantConfig, slug: string): void {
       }
     }
   } else {
-    console.warn('[tenant] warning: no schema.roles mapping — falling back to the sheet-name heuristic.');
+    problems.push('schema.roles is required: map all six roles (platforms, faculty, facultyPlatforms, verticals, facultyVerticals, collaborations) to schema.sheets keys');
   }
 
   need(!!config.features?.exportFilenameBase, 'features.exportFilenameBase is required');

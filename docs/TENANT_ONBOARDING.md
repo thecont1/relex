@@ -43,7 +43,7 @@ Edit `tenants/my-new-client/tenant.config.json`:
 | `dataSource.path` | For `local`: relative path to the workbook under `tenants/{slug}/public/data/` (e.g. `./data/my_client_dataset.xlsx`). For `remote`: full URL. |
 | `dataSource.headers` | (Optional) HTTP headers for remote sources, e.g. `{"Authorization": "Bearer ..."}` |
 | `schema.sheets` | Map of sheet name → required column names. Column names must match the standard schema (see "Schema limitation" below). |
-| `schema.roles` | Explicit map of the six logical roles (`platforms`, `faculty`, `facultyPlatforms`, `verticals`, `facultyVerticals`, `collaborations`) to your sheet names. Recommended for all tenants; without it a sheet-name heuristic is used. |
+| `schema.roles` | **Required.** Explicit map of the six logical roles (`platforms`, `faculty`, `facultyPlatforms`, `verticals`, `facultyVerticals`, `collaborations`) to your sheet names. The build fails without it — the runtime engine throws on unresolvable roles, so this is enforced at build time rather than left to a runtime crash. |
 | `schema.entityTypes` | Labels and searchability for each node type |
 | `schema.edgeTypes` | Labels for each edge type |
 | `features.exportFilenameBase` | Base filename for PNG/SVG exports (e.g. `my-client-network`) |
