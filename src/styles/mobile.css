@@ -129,8 +129,9 @@ body.ui-mobile .stage {
   -webkit-appearance: none;
   appearance: none;
 }
-.mobile-top-bar__search-input:focus {
-  outline: none;
+.mobile-top-bar__search-input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
   border-color: var(--focus-ring);
 }
 .mobile-top-bar__search-input::placeholder {
@@ -155,10 +156,7 @@ body.ui-mobile .stage {
 }
 
 .mobile-top-bar__search-option {
-  width: 100%;
   text-align: left;
-  background: transparent;
-  border: none;
   color: var(--text-primary);
   padding: 10px 12px;
   font-size: var(--fs-sm);
@@ -166,10 +164,13 @@ body.ui-mobile .stage {
   cursor: pointer;
   border-radius: var(--r-sm);
   min-height: var(--mobile-touch-target);
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
 }
 .mobile-top-bar__search-option:hover,
-.mobile-top-bar__search-option:focus-visible {
+.mobile-top-bar__search-option[aria-selected="true"] {
   background: var(--surface-3);
 }
 
@@ -587,7 +588,7 @@ body.ui-mobile .acc-table th,
 body.ui-mobile .acc-table td {
   padding: 10px 12px;
   vertical-align: top;
-  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Platform name row — full-width header spanning the detail columns */
@@ -908,7 +909,7 @@ body.ui-mobile details.acc-disclose > summary {
 .acc-text-action:hover,
 .acc-entity-link:hover {
   color: var(--info);
-  text-decoration-color: currentColor;
+  text-decoration-color: currentcolor;
 }
 
 .acc-summary-list {

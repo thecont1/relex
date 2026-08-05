@@ -97,18 +97,16 @@ export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, 
         {matches.length > 0 && (
           <ul id={listboxId} className="mobile-top-bar__search-dropdown" role="listbox">
             {matches.map((match, index) => (
-              <li key={match.id} role="none">
-                <button
-                  id={`${listboxId}-option-${match.id}`}
-                  type="button"
-                  role="option"
-                  aria-selected={index === activeIndex}
-                  className="mobile-top-bar__search-option"
-                  onClick={() => selectMatch(match.id)}
-                >
-                  <span>{match.label}</span>
-                  <span className="mobile-top-bar__search-type">{entityTypeLabel(match.type)}</span>
-                </button>
+              <li
+                key={match.id}
+                id={`${listboxId}-option-${match.id}`}
+                role="option"
+                aria-selected={index === activeIndex}
+                className="mobile-top-bar__search-option"
+                onClick={() => selectMatch(match.id)}
+              >
+                <span>{match.label}</span>
+                <span className="mobile-top-bar__search-type">{entityTypeLabel(match.type)}</span>
               </li>
             ))}
           </ul>
