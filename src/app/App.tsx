@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useWorkbookData } from '../hooks/useWorkbookData';
 import { useGraphState } from '../hooks/useGraphState';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import { GraphCanvas, type GraphCanvasHandle } from '../components/GraphCanvas';
 import { GlobeCanvas, type GlobeCanvasHandle } from '../components/GlobeCanvas';
 import { ControlPanel } from '../components/ControlPanel';
@@ -10,6 +11,10 @@ import { ErrorBanner, WarningBanner } from '../components/WarningBanner';
 import { FocusModeToggle } from '../components/FocusModeToggle';
 import { AppHeader } from '../components/AppHeader';
 import { StatsBar } from '../components/StatsBar';
+import { MobileTopBar } from '../components/mobile/MobileTopBar';
+import { MobileControls, type SheetType } from '../components/mobile/MobileControls';
+import { MobileDetailDrawer } from '../components/mobile/MobileDetailDrawer';
+import { MobileGraphHint } from '../components/mobile/MobileGraphHint';
 import { exportPng, exportSvg } from '../lib/exportGraph';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { fadeIn } from '../lib/motion';
@@ -65,6 +70,9 @@ export function App() {
   const [networkScale, setNetworkScale] = useState(1);
   const modelScale = networkScale * SCALE_MODEL_BASE;
 
+  const isMobile = useMediaQuery('(pointer: coarse), (max-width: 900px)');
+  const [mobileSheet, setMobileSheet] = useState<SheetType>('none');
+
   const increaseNetworkScale = useCallback(() => {
     setNetworkScale(v => Math.min(NETWORK_SCALE_MAX, roundScale(v + NETWORK_SCALE_STEP)));
   }, []);
@@ -92,6 +100,12 @@ export function App() {
       delete document.documentElement.dataset.theme;
     };
   }, [theme]);
+
+  // Mobile body class — the CSS gate for all mobile-specific overrides.
+  useEffect(() => {
+    document.body.classList.toggle('ui-mobile', isMobile);
+    return () => document.body.classList.remove('ui-mobile');
+  }, [isMobile]);
 
   // Reset = full re-fetch. Equivalent to a browser page refresh: tears down
   // everything, re-loads the xlsx, rebuilds the graph from scratch, and
@@ -198,7 +212,115 @@ export function App() {
     );
   }
 
-  // Ready state
+  // Ready state — mobile branch
+  if (isMobile) {
+    return (
+      <div className="app-shell" data-theme={theme} ref={shellRef}>
+        <a className="skip-link" href="#main">Skip to main content</a>
+        <MobileTopBar
+          graph={state.graph}
+          searchQuery={gs.search.query}
+          onSearch={(q) => { gs.setSearchQuery(q); if (q) gs.setSearchFocus(null); }}
+          onSearchFocusNode={(id) => {
+            gs.setSearchFocus(id);
+            gs.setView('accessible');
+            gs.openDrawer(id);
+            setHighlightNodeId(id);
+            setLiveMessage(`Focused ${state.graph.nodes.find(n => n.id === id)?.label ?? 'faculty member'}.`);
+          }}
+          onClearSearch={() => { gs.clearSearch(); setHighlightNodeId(null); }}
+          onMore={() => setMobileSheet('more')}
+          theme={theme}
+          onToggleTheme={() => {
+            const next = theme === 'dark' ? 'light' : 'dark';
+            setTheme(next);
+            setLiveMessage(`Switched to ${next} mode.`);
+          }}
+        />
+        <MobileControls
+          graph={state.graph}
+          filters={gs.filters}
+          onToggleSector={gs.toggleSector}
+          onClearSectors={gs.clearSectors}
+          onTogglePlatforms={gs.togglePlatforms}
+          onToggleVerticals={gs.toggleVerticals}
+          onToggleCollaborations={gs.toggleCollaborations}
+          onToggleRelationships={gs.toggleRelationships}
+          onSoftReset={gs.softReset}
+          renderMode={gs.renderMode}
+          onRenderModeChange={gs.setRenderMode}
+          view={gs.view}
+          onViewChange={gs.setView}
+          visibleNodeIds={gs.visibleNodeIds}
+          visibleEdgeIds={gs.visibleEdgeIds}
+          refreshedAt={state.refreshedAt}
+          onRefresh={handleSoftReset}
+          onReset={handleReset}
+          onExportPng={onExportPng}
+          onExportSvg={onExportSvg}
+          resetting={resetting}
+          openSheet={mobileSheet}
+          onOpenSheet={setMobileSheet}
+          onCloseSheet={() => setMobileSheet('none')}
+        />
+        <MobileGraphHint view={gs.view} />
+        <main className="app-body" id="main" style={{ gridTemplateColumns: '1fr' }}>
+          <section className="stage" aria-label={gs.view === 'visual' ? 'Visual graph' : 'Accessible view'}>
+            {state.issues.length > 0 && (
+              <div style={{ padding: 'var(--sp-3) var(--sp-5) 0' }}>
+                <WarningBanner issues={state.issues} />
+              </div>
+            )}
+            {gs.view === 'visual' ? (
+              <div className="cy-stage">
+                {gs.renderMode === 'globe' ? (
+                  <GlobeCanvas
+                    ref={globeRef}
+                    graph={state.graph}
+                    filters={gs.filters}
+                    searchFocusId={gs.search.focusId}
+                    highlightNodeId={highlightNodeId}
+                    theme={theme}
+                    networkScale={modelScale}
+                    onNodeClick={(id) => { gs.openDrawer(id); setHighlightNodeId(id); }}
+                  />
+                ) : (
+                  <GraphCanvas
+                    ref={canvasRef}
+                    graph={state.graph}
+                    filters={gs.filters}
+                    searchFocusId={gs.search.focusId}
+                    highlightNodeId={highlightNodeId}
+                    theme={theme}
+                    networkScale={modelScale}
+                    onNodeClick={(id) => { gs.openDrawer(id); setHighlightNodeId(id); }}
+                  />
+                )}
+              </div>
+            ) : (
+              <AccessibleView
+                graph={state.graph}
+                filters={gs.filters}
+                onSelectNode={(id) => { gs.openDrawer(id); setHighlightNodeId(id); }}
+              />
+            )}
+          </section>
+        </main>
+        <MobileDetailDrawer
+          graph={state.graph}
+          nodeId={gs.drawer.nodeId}
+          open={gs.drawer.open}
+          onClose={() => { gs.closeDrawer(); setHighlightNodeId(null); setLiveMessage('Closed detail drawer.'); }}
+          onSelectNode={(id) => { gs.openDrawer(id); setHighlightNodeId(id); }}
+        />
+        <div className="live-region" role="status" aria-live="polite" aria-atomic="true">
+          {liveMessage}
+        </div>
+      </div>
+    );
+  }
+
+  // Ready state — desktop branch
   return (
     <div className="app-shell" data-theme={theme} ref={shellRef}>
       <a className="skip-link" href="#main">Skip to main content</a>
