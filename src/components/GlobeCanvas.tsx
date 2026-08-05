@@ -396,9 +396,8 @@ function computeVisibleIds(graph: GraphModel, filters: GraphFilters): VisibleSet
     if (n.type === 'platform' && !filters.showPlatforms) continue;
     if (n.type === 'vertical' && !filters.showVerticals) continue;
     if (filters.activeSectors.size > 0) {
-      if (n.category && !filters.activeSectors.has(n.category)) {
-        if (n.type !== 'faculty') continue;
-      }
+      if (n.category && !filters.activeSectors.has(n.category)) continue;
+      if (!n.category && !hasActiveFacultySector(graph, n.id, filters)) continue;
     }
     nodes.add(n.id);
   }
@@ -419,6 +418,20 @@ function computeVisibleIds(graph: GraphModel, filters: GraphFilters): VisibleSet
     edges.add(e.id);
   }
   return { nodes, edges };
+}
+
+function hasActiveFacultySector(graph: GraphModel, facultyId: string, filters: GraphFilters): boolean {
+  for (const edge of graph.edges) {
+    const connectedId = edge.source === facultyId
+      ? edge.target
+      : edge.target === facultyId
+        ? edge.source
+        : null;
+    if (!connectedId) continue;
+    const category = graph.nodes.find(node => node.id === connectedId)?.category;
+    if (category && filters.activeSectors.has(category)) return true;
+  }
+  return false;
 }
 
 /**

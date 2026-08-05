@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 interface MobileSheetProps {
   open: boolean;
@@ -27,6 +28,7 @@ interface MobileSheetProps {
  * - prefers-reduced-motion: transitions are instant (handled in mobile.css).
  */
 export function MobileSheet({ open, onClose, title, children, footer, maxHeight = '85vh' }: MobileSheetProps) {
+  const reducedMotion = useReducedMotion();
   const [visible, setVisible] = useState(open);
   const sheetRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -37,10 +39,10 @@ export function MobileSheet({ open, onClose, title, children, footer, maxHeight 
     if (open) {
       setVisible(true);
     } else {
-      const timer = setTimeout(() => setVisible(false), 300);
+      const timer = setTimeout(() => setVisible(false), reducedMotion ? 0 : 300);
       return () => clearTimeout(timer);
     }
-  }, [open]);
+  }, [open, reducedMotion]);
 
   // Escape to close (capture phase so it fires before any inner handlers)
   useEffect(() => {

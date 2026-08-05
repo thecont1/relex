@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { searchFaculty } from '../../lib/buildGraph';
+import { useEffect, useId, useState } from 'react';
+import { searchEntities } from '../../lib/buildGraph';
 import { tenantConfig } from '../../tenant/config';
-import type { GraphModel } from '../../lib/types';
+import type { GraphModel, NodeType } from '../../lib/types';
 
 interface Props {
   graph: GraphModel;
@@ -15,14 +15,19 @@ interface Props {
 /** Mobile top bar: tenant logo + institutional wordmark, menu, and search. */
 export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, onClearSearch, onMore }: Props) {
   const [localValue, setLocalValue] = useState(searchQuery);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const listboxId = useId();
 
   useEffect(() => { setLocalValue(searchQuery); }, [searchQuery]);
 
-  const matches = searchFaculty(graph, localValue).slice(0, 6);
+  const matches = searchEntities(graph, localValue).slice(0, 6);
+  const activeMatch = matches[activeIndex] ?? matches[0];
 
   const selectMatch = (id: string) => {
     onSearchFocusNode(id);
+    onSearch('');
     setLocalValue('');
+    setActiveIndex(0);
   };
 
   const branding = tenantConfig.branding;
@@ -63,32 +68,46 @@ export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, 
         <input
           type="search"
           className="mobile-top-bar__search-input"
-          placeholder="Search faculty…"
+          placeholder="Search faculty, verticals, platforms…"
           value={localValue}
-          onChange={(e) => { setLocalValue(e.target.value); onSearch(e.target.value); }}
+          onChange={(e) => { setLocalValue(e.target.value); setActiveIndex(0); onSearch(e.target.value); }}
           onKeyDown={(e) => {
-            if (e.key === 'Escape') { onClearSearch(); setLocalValue(''); }
-            if (e.key === 'Enter' && matches.length > 0) {
+            if (e.key === 'Escape') {
+              onClearSearch();
+              setLocalValue('');
+              setActiveIndex(0);
+            } else if (e.key === 'ArrowDown' && matches.length > 0) {
               e.preventDefault();
-              selectMatch(matches[0].id);
+              setActiveIndex(index => (index + 1) % matches.length);
+            } else if (e.key === 'ArrowUp' && matches.length > 0) {
+              e.preventDefault();
+              setActiveIndex(index => (index - 1 + matches.length) % matches.length);
+            } else if (e.key === 'Enter' && activeMatch) {
+              e.preventDefault();
+              selectMatch(activeMatch.id);
             }
           }}
           autoComplete="off"
           role="combobox"
           aria-expanded={matches.length > 0}
           aria-autocomplete="list"
-          aria-controls="mobile-search-results"
+          aria-controls={listboxId}
+          aria-activedescendant={activeMatch ? `${listboxId}-option-${activeMatch.id}` : undefined}
         />
         {matches.length > 0 && (
-          <ul id="mobile-search-results" className="mobile-top-bar__search-dropdown" role="listbox">
-            {matches.map(m => (
-              <li key={m.id} role="option" aria-selected="false">
+          <ul id={listboxId} className="mobile-top-bar__search-dropdown" role="listbox">
+            {matches.map((match, index) => (
+              <li key={match.id} role="none">
                 <button
+                  id={`${listboxId}-option-${match.id}`}
                   type="button"
+                  role="option"
+                  aria-selected={index === activeIndex}
                   className="mobile-top-bar__search-option"
-                  onClick={() => selectMatch(m.id)}
+                  onClick={() => selectMatch(match.id)}
                 >
-                  {m.label}
+                  <span>{match.label}</span>
+                  <span className="mobile-top-bar__search-type">{entityTypeLabel(match.type)}</span>
                 </button>
               </li>
             ))}
@@ -97,4 +116,10 @@ export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, 
       </div>
     </header>
   );
+}
+
+function entityTypeLabel(type: NodeType): string {
+  if (type === 'faculty') return 'Faculty';
+  if (type === 'platform') return 'Platform';
+  return 'Research vertical';
 }

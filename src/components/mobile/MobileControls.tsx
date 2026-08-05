@@ -84,9 +84,9 @@ export function MobileControls(props: Props) {
             <button type="button" className="btn btn-primary" onClick={onCloseSheet}>
               Show {props.visibleNodeIds.size} results
             </button>
-            <button type="button" className="btn" onClick={props.onSoftReset}>
-              Reset
-            </button>
+                      <button type="button" className="btn" onClick={() => { props.onSoftReset(); onCloseSheet(); }}>
+                        Reset
+                      </button>
           </div>
         }
       >
