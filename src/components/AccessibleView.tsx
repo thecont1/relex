@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import { buildAccessibleModel } from '../lib/buildAccessibleModel';
 import { sectorColor } from '../lib/colorSystem';
 import type { GraphFilters, GraphModel } from '../lib/types';
@@ -7,6 +7,8 @@ interface Props {
   graph: GraphModel;
   filters: GraphFilters;
   onSelectNode: (nodeId: string) => void;
+  /** Compact mode for mobile: single-column, collapsed groups, tighter spacing. */
+  compact?: boolean;
 }
 
 /**
@@ -18,7 +20,7 @@ interface Props {
  * The view always reflects the underlying dataset. When filters are active
  * in the visual graph, we mirror them here so both views stay in sync.
  */
-export function AccessibleView({ graph, filters, onSelectNode }: Props) {
+export function AccessibleView({ graph, filters, onSelectNode, compact }: Props) {
   const accessible = useMemo(() => buildAccessibleModel(graph), [graph]);
 
   // Apply the same visibility rules used for the visual graph.
@@ -70,7 +72,7 @@ export function AccessibleView({ graph, filters, onSelectNode }: Props) {
   }, [accessible, filters]);
 
   return (
-    <div className="accessible-view" role="region" aria-labelledby="accessible-heading">
+    <div className={'accessible-view' + (compact ? ' accessible-view--compact' : '')} role="region" aria-labelledby="accessible-heading">
       <h2 id="accessible-heading">Accessible View of the Network</h2>
       <p className="lede">
         The data below mirrors the visual network diagram. Use this view if you prefer reading the
@@ -86,38 +88,32 @@ export function AccessibleView({ graph, filters, onSelectNode }: Props) {
         <table className="acc-table">
           <caption className="sr-only">Network totals by node and relationship type</caption>
           <thead>
-            <tr><th scope="col">Metric</th><th scope="col">Total</th><th scope="col">Currently shown</th></tr>
+            <tr><th scope="col">Metric</th><th scope="col">Showing</th></tr>
           </thead>
           <tbody>
             <tr>
               <th scope="row">Faculty</th>
-              <td>{graph.counts.faculty}</td>
-              <td>{visibleFacultyIds.size}</td>
+              <td><span aria-label={`${visibleFacultyIds.size} shown of ${graph.counts.faculty} total`}>{visibleFacultyIds.size}/{graph.counts.faculty}</span></td>
             </tr>
             <tr>
               <th scope="row">Research Verticals</th>
-              <td>{graph.counts.verticals}</td>
-              <td>{visibleVerticalNames.size}</td>
+              <td><span aria-label={`${visibleVerticalNames.size} shown of ${graph.counts.verticals} total`}>{visibleVerticalNames.size}/{graph.counts.verticals}</span></td>
             </tr>
             <tr>
               <th scope="row">Platforms</th>
-              <td>{graph.counts.platforms}</td>
-              <td>{visiblePlatformNames.size}</td>
+              <td><span aria-label={`${visiblePlatformNames.size} shown of ${graph.counts.platforms} total`}>{visiblePlatformNames.size}/{graph.counts.platforms}</span></td>
             </tr>
             <tr>
               <th scope="row">Collaborations</th>
-              <td>{graph.counts.edges['faculty-faculty']}</td>
-              <td>{filters.showCollaborations ? graph.counts.edges['faculty-faculty'] : 0}</td>
+              <td><span aria-label={`${filters.showCollaborations ? graph.counts.edges['faculty-faculty'] : 0} shown of ${graph.counts.edges['faculty-faculty']} total`}>{filters.showCollaborations ? graph.counts.edges['faculty-faculty'] : 0}/{graph.counts.edges['faculty-faculty']}</span></td>
             </tr>
             <tr>
               <th scope="row">Faculty–Vertical affiliations</th>
-              <td>{graph.counts.edges['faculty-vertical']}</td>
-              <td>{filters.showVerticals ? graph.counts.edges['faculty-vertical'] : 0}</td>
+              <td><span aria-label={`${filters.showVerticals ? graph.counts.edges['faculty-vertical'] : 0} shown of ${graph.counts.edges['faculty-vertical']} total`}>{filters.showVerticals ? graph.counts.edges['faculty-vertical'] : 0}/{graph.counts.edges['faculty-vertical']}</span></td>
             </tr>
             <tr>
               <th scope="row">Faculty–Platform affiliations</th>
-              <td>{graph.counts.edges['faculty-platform']}</td>
-              <td>{filters.showPlatforms ? graph.counts.edges['faculty-platform'] : 0}</td>
+              <td><span aria-label={`${filters.showPlatforms ? graph.counts.edges['faculty-platform'] : 0} shown of ${graph.counts.edges['faculty-platform']} total`}>{filters.showPlatforms ? graph.counts.edges['faculty-platform'] : 0}/{graph.counts.edges['faculty-platform']}</span></td>
             </tr>
           </tbody>
         </table>
@@ -227,21 +223,25 @@ export function AccessibleView({ graph, filters, onSelectNode }: Props) {
       {filters.showPlatforms && accessible.platforms.length > 0 && (
         <section aria-labelledby="acc-platforms-heading">
           <h3 id="acc-platforms-heading">Platforms</h3>
-          <table className="acc-table">
+          <table className="acc-table acc-table--platforms">
             <caption className="sr-only">Platforms with their sector, description, and linked faculty</caption>
             <thead>
-              <tr><th scope="col">Platform</th><th scope="col">Sector</th><th scope="col">Description</th><th scope="col">Faculty</th></tr>
+              <tr><th scope="col">Sector</th><th scope="col">Description</th><th scope="col">Faculty</th></tr>
             </thead>
             <tbody>
               {accessible.platforms
                 .filter(p => visiblePlatformNames.has(p.name))
                 .map(p => (
-                <tr key={p.id}>
-                  <th scope="row">{p.name}</th>
-                  <td>{p.sector ?? '—'}</td>
-                  <td>{p.description || '—'}</td>
-                  <td>{p.faculty.join(', ')}</td>
-                </tr>
+                <Fragment key={p.id}>
+                  <tr className="acc-platform-name-row">
+                    <th scope="rowgroup" colSpan={3}>{p.name}</th>
+                  </tr>
+                  <tr>
+                    <td data-label="Sector">{p.sector ?? '—'}</td>
+                    <td data-label="Description">{p.description || '—'}</td>
+                    <td data-label="Faculty">{p.faculty.join(', ') || '—'}</td>
+                  </tr>
+                </Fragment>
               ))}
             </tbody>
           </table>

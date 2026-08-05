@@ -230,12 +230,6 @@ export function App() {
           }}
           onClearSearch={() => { gs.clearSearch(); setHighlightNodeId(null); }}
           onMore={() => setMobileSheet('more')}
-          theme={theme}
-          onToggleTheme={() => {
-            const next = theme === 'dark' ? 'light' : 'dark';
-            setTheme(next);
-            setLiveMessage(`Switched to ${next} mode.`);
-          }}
         />
         <MobileControls
           graph={state.graph}
@@ -262,10 +256,16 @@ export function App() {
           openSheet={mobileSheet}
           onOpenSheet={setMobileSheet}
           onCloseSheet={() => setMobileSheet('none')}
+          theme={theme}
+          onToggleTheme={() => {
+            const next = theme === 'dark' ? 'light' : 'dark';
+            setTheme(next);
+            setLiveMessage(`Switched to ${next} mode.`);
+          }}
         />
         <MobileGraphHint view={gs.view} />
         <main className="app-body" id="main" style={{ gridTemplateColumns: '1fr' }}>
-          <section className="stage" aria-label={gs.view === 'visual' ? 'Visual graph' : 'Accessible view'}>
+          <section className={'stage' + (gs.view === 'visual' ? ' stage--visual' : '')} aria-label={gs.view === 'visual' ? 'Visual graph' : 'Accessible view'}>
             {state.issues.length > 0 && (
               <div style={{ padding: 'var(--sp-3) var(--sp-5) 0' }}>
                 <WarningBanner issues={state.issues} />
@@ -302,6 +302,7 @@ export function App() {
                 graph={state.graph}
                 filters={gs.filters}
                 onSelectNode={(id) => { gs.openDrawer(id); setHighlightNodeId(id); }}
+                compact
               />
             )}
           </section>

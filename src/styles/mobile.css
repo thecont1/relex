@@ -60,6 +60,7 @@ body.ui-mobile .stage {
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
+  flex-shrink: 0;
 }
 
 .mobile-top-bar__row {
@@ -68,26 +69,45 @@ body.ui-mobile .stage {
   justify-content: space-between;
 }
 
+.mobile-top-bar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.mobile-top-bar__logo {
+  height: 28px;
+  width: auto;
+  flex-shrink: 0;
+}
+
 .mobile-top-bar__wordmark {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
   font-weight: 600;
   letter-spacing: 0.01em;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.mobile-top-bar__more {
+.mobile-top-bar__menu {
   background: transparent;
   border: 1px solid var(--border-strong);
   border-radius: var(--r-sm);
   color: var(--text-secondary);
-  font-size: var(--fs-sm);
-  padding: 4px 12px;
+  padding: 8px 10px;
   cursor: pointer;
   min-height: var(--mobile-touch-target);
+  min-width: var(--mobile-touch-target);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
-.mobile-top-bar__more:active { transform: translateY(1px); }
+.mobile-top-bar__menu:active { transform: translateY(1px); }
+.mobile-top-bar__menu:hover { background: var(--surface-3); }
 
 .mobile-top-bar__search-wrap {
   position: relative;
@@ -515,12 +535,6 @@ body.ui-mobile .stage {
 
 /* ---------- Mobile detail drawer ---------- */
 
-.mobile-detail-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
-}
-
 .mobile-detail-meta {
   font-size: var(--fs-xs);
   text-transform: uppercase;
@@ -528,76 +542,6 @@ body.ui-mobile .stage {
   color: var(--text-muted);
   font-weight: 600;
 }
-
-.mobile-detail-description {
-  font-size: var(--fs-sm);
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.mobile-detail-section h3 {
-  font-size: var(--fs-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin-bottom: var(--sp-2);
-  font-weight: 600;
-}
-
-.mobile-detail-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.mobile-detail-list li {
-  padding: var(--sp-2) var(--sp-3);
-  background: var(--surface-1);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-sm);
-  font-size: var(--fs-sm);
-}
-
-.mobile-detail-list .row-meta {
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.mobile-detail-list button {
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: var(--fs-sm);
-  cursor: pointer;
-  padding: 0;
-  text-align: left;
-}
-.mobile-detail-list button:hover { color: var(--focus-ring); }
-
-.mobile-detail-empty {
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-.mobile-detail-connectivity h3 {
-  font-size: var(--fs-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin-bottom: var(--sp-2);
-  font-weight: 600;
-}
-.mobile-detail-connectivity p {
-  font-size: var(--fs-sm);
-  color: var(--text-secondary);
-}
-.mobile-detail-connectivity strong { color: var(--text-primary); }
 
 /* ---------- MobileGraphHint ---------- */
 
@@ -618,7 +562,8 @@ body.ui-mobile .accessible-view {
   width: 100%;
   max-width: 100%;
   padding: var(--sp-3) var(--sp-3);
-  gap: var(--sp-4);
+  gap: var(--sp-5);
+  line-height: 1.55;
 }
 
 body.ui-mobile .accessible-view h2 {
@@ -627,6 +572,7 @@ body.ui-mobile .accessible-view h2 {
 
 body.ui-mobile .accessible-view h3 {
   font-size: var(--fs-md);
+  margin-bottom: var(--sp-2);
 }
 
 body.ui-mobile .acc-grid {
@@ -634,21 +580,72 @@ body.ui-mobile .acc-grid {
 }
 
 body.ui-mobile .acc-table {
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
 }
 
 body.ui-mobile .acc-table th,
 body.ui-mobile .acc-table td {
-  padding: var(--sp-1) var(--sp-2);
+  padding: 10px 12px;
+  vertical-align: top;
+  word-break: break-word;
+}
+
+/* Platform name row — full-width header spanning the detail columns */
+.acc-platform-name-row th {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-primary);
+  background: var(--surface-2);
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 body.ui-mobile details.acc-disclose > summary {
-  padding: var(--sp-2) var(--sp-3);
+  padding: 12px 14px;
   font-size: var(--fs-sm);
+  line-height: 1.5;
 }
 
 body.ui-mobile details.acc-disclose > .acc-disclose-body {
-  padding: 0 var(--sp-3) var(--sp-3);
+  padding: 0 var(--sp-3) var(--sp-4);
+  line-height: 1.55;
+}
+
+body.ui-mobile details.acc-disclose > .acc-disclose-body li {
+  margin-top: 4px;
+}
+
+/* At very narrow widths, stack the 3-column platform detail row */
+@media (max-width: 380px) {
+  .acc-table--platforms thead { display: none; }
+  .acc-table--platforms,
+  .acc-table--platforms tbody,
+  .acc-table--platforms tr,
+  .acc-table--platforms th,
+  .acc-table--platforms td {
+    display: block;
+    width: 100%;
+  }
+  .acc-table--platforms .acc-platform-name-row th {
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--border-subtle);
+  }
+  .acc-table--platforms tr:not(.acc-platform-name-row) td {
+    padding-left: 14px;
+    border-bottom: none;
+  }
+  .acc-table--platforms tr:not(.acc-platform-name-row) td::before {
+    content: attr(data-label) ': ';
+    font-weight: 600;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-right: 4px;
+  }
 }
 
 /* ---------- Breakpoint: ≤760px (stricter mobile density) ---------- */
@@ -783,8 +780,87 @@ body.ui-mobile details.acc-disclose > .acc-disclose-body {
     border-top-width: 2px;
   }
   body.ui-mobile .mobile-controls-row__btn,
-  body.ui-mobile .mobile-top-bar__more,
+  body.ui-mobile .mobile-top-bar__menu,
   body.ui-mobile .mobile-sheet__close {
     border-width: 2px;
   }
+}
+
+/* ---------- Stats chip: full-word pairs ---------- */
+
+.mobile-stats-chip__line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  align-items: baseline;
+}
+
+.mobile-stats-chip__pair {
+  white-space: nowrap;
+}
+
+.mobile-stats-chip__sep {
+  color: var(--text-muted);
+  user-select: none;
+}
+
+/* ---------- About sheet ---------- */
+
+.mobile-about-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.mobile-about-description {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.mobile-about-section-title {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: var(--sp-2);
+}
+
+.mobile-about-views p {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: var(--sp-2);
+}
+
+/* ---------- Mobile drawer-body override (DetailContent inside sheet) ---------- */
+
+.mobile-sheet .drawer-body {
+  flex: none;
+  overflow: visible;
+  padding: 0;
+  gap: var(--sp-3);
+}
+
+.mobile-sheet .drawer-section h3 {
+  font-size: var(--fs-xs);
+}
+
+.mobile-sheet .drawer-list li {
+  padding: var(--sp-2) var(--sp-3);
+}
+
+/* ---------- Stage overflow by view ---------- */
+
+body.ui-mobile .stage--visual {
+  overflow: hidden;
+}
+
+/* ---------- Touch target for accessible view summaries ---------- */
+
+body.ui-mobile details.acc-disclose > summary {
+  min-height: var(--mobile-touch-target);
+  display: flex;
+  align-items: center;
 }
