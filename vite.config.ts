@@ -58,6 +58,13 @@ function loadTenantConfig(slug: string): TenantConfig {
 const slug = process.env.TENANT || 'cense';
 const tenantConfig = loadTenantConfig(slug);
 
+// Per-tenant static assets. Each tenant's dist/ must contain ONLY that
+// tenant's data and branding — never another tenant's workbook. If the
+// tenant has its own public/ dir, it becomes the Vite publicDir; otherwise
+// we fall back to the repo-root public/ (shared assets only).
+const tenantPublicDir = resolve(TENANTS_DIR, slug, 'public');
+const publicDir = existsSync(tenantPublicDir) ? tenantPublicDir : resolve(__dirname, 'public');
+
 // Vite plugin: inject the tenant config as a global constant and transform
 // index.html to use tenant-specific metadata (title, description).
 function tenantPlugin(): PluginOption {
@@ -81,10 +88,12 @@ function tenantPlugin(): PluginOption {
 }
 
 // Intranet deployment. Use relative base so the app works under any mount path.
-// Data file lives in /public/data and is fetched at runtime.
+// Data file lives in the tenant's public dir (tenants/{slug}/public/data) and
+// is fetched at runtime.
 export default defineConfig({
   plugins: [react(), tenantPlugin()],
   base: './',
+  publicDir,
   define: {
     '__TENANT_CONFIG__': JSON.stringify(tenantConfig),
     '__TENANT_SLUG__': JSON.stringify(slug),

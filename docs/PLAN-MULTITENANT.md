@@ -2,20 +2,14 @@
 
 Branch: `arch/multitenant`
 
-This plan closes the gap between the current state of the repo and the target
-architecture described in
-[SINGLE-CODEBASE-MULTI-TENANT.md](./SINGLE-CODEBASE-MULTI-TENANT.md) and
-[TENANT_ONBOARDING.md](./TENANT_ONBOARDING.md).
+This plan closes the gap between the current state of the repo and the target architecture described in [SINGLE-CODEBASE-MULTI-TENANT.md](./SINGLE-CODEBASE-MULTI-TENANT.md) and [TENANT_ONBOARDING.md](./TENANT_ONBOARDING.md).
 
 ## Current state (audit, 2026-08-06)
 
 Much of the refactor is already implemented on this branch:
 
-- `LICENSE.md` is already the Relex Business Source License (Step 1 of the
-  design doc, code side).
-- Tenant config system exists: `src/tenant/config.ts` (typed accessor,
-  build-time injection via `__TENANT_CONFIG__`), `tenants/cense/` and
-  `tenants/test-dept/` config folders.
+- `LICENSE.md` is already the Relex Business Source License (Step 1 of the design doc, code side).
+- Tenant config system exists: `src/tenant/config.ts` (typed accessor, build-time injection via `__TENANT_CONFIG__`), `tenants/cense/` and `tenants/test-dept/` config folders.
 - `vite.config.ts` injects the tenant config via `define`, rewrites
   `index.html` title/description per tenant, and outputs to `dist/{slug}/`.
 - `package.json` has per-tenant `dev:`/`build:`/`preview:` scripts and a

@@ -30,11 +30,11 @@ Edit `tenants/my-new-client/tenant.config.json`:
 | `name` | Full display name for the app (used in `<title>` and meta) |
 | `description` | Meta description for SEO/intranet indexing |
 | `branding.title` | Header title text (e.g. `DEPARTMENT OF COMPUTER SCIENCE`) |
-| `branding.logo.src` | Path to the logo image under `public/assets/` |
+| `branding.logo.src` | Path to the logo image under `tenants/{slug}/public/assets/` |
 | `branding.logo.alt` | Alt text for the logo |
 | `branding.colorAccent` | Primary accent color (hex) |
 | `dataSource.type` | `local` for a static file, `remote` for an HTTP endpoint |
-| `dataSource.path` | For `local`: relative path to the workbook under `public/data/` (e.g. `./data/my_client_dataset.xlsx`). For `remote`: full URL. |
+| `dataSource.path` | For `local`: relative path to the workbook under `tenants/{slug}/public/data/` (e.g. `./data/my_client_dataset.xlsx`). For `remote`: full URL. |
 | `dataSource.headers` | (Optional) HTTP headers for remote sources, e.g. `{"Authorization": "Bearer ..."}` |
 | `schema.sheets` | Map of sheet name → required column names. Use the standard schema if your workbook matches the default, or customize for different domain models. |
 | `schema.entityTypes` | Labels and searchability for each node type |
@@ -44,15 +44,22 @@ Edit `tenants/my-new-client/tenant.config.json`:
 
 ### 3. Place the data workbook
 
-- For `local` data sources: copy the Excel workbook to `public/data/` and
-  ensure the `dataSource.path` in the config matches.
+- For `local` data sources: copy the Excel workbook to
+  `tenants/{slug}/public/data/` and ensure the `dataSource.path` in the
+  config matches.
 - For `remote` data sources: ensure the URL is accessible from the tenant's
   deployment environment. If auth is needed, set the headers in the config.
 
+Each tenant has its own `public/` dir (`tenants/{slug}/public/`), which Vite
+uses as the build's `publicDir`. This guarantees a tenant's `dist/` output
+contains only that tenant's data and branding — never another tenant's
+workbook. Tenant workbooks are gitignored (`tenants/*/public/data/*.xlsx`);
+only fictional test data may be committed.
+
 ### 4. Place branding assets
 
-Copy logo images to `public/assets/{tenant-slug}/` and update the
-`branding.logo.src` path in the config.
+Copy logo images to `tenants/{slug}/public/assets/{tenant-slug}/` and update
+the `branding.logo.src` path in the config.
 
 ### 5. Build the tenant
 
