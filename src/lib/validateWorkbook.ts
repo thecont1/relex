@@ -27,43 +27,58 @@ type RawRows = Record<string, unknown>[];
 // Resolve the sheet/column mapping from the tenant config.
 // The config stores sheets as a map of sheet-name → required-columns.
 // We need the reverse: given a logical role (platforms, faculty, etc.),
-// find the sheet name and columns. For the standard schema, the sheet names
-// are the keys. For custom schemas, the tenant config defines the mapping.
+// find the sheet name and columns. The explicit `schema.roles` mapping in
+// the tenant config is the source of truth; a name heuristic is kept only
+// as a fallback for configs that don't declare roles.
 const schema = tenantConfig.schema;
 
 // Build a lookup from the config's sheet map.
 // The config maps sheet names to their required columns.
-// We derive the logical roles from the sheet names themselves.
 const SHEET_COLUMNS: Record<string, readonly string[]> = schema.sheets;
 
-// Logical role → sheet name mapping. For the standard schema, these are
-// the canonical sheet names. For custom schemas, the tenant config's
-// sheet names are used directly.
+// Logical role → sheet name mapping.
 const ROLE_TO_SHEET: Record<string, string> = {};
-for (const sheetName of Object.keys(SHEET_COLUMNS)) {
-  // Map common role names to sheet names. This is a best-effort mapping
-  // that works for the standard schema. For custom schemas, the sheet
-  // names in the config ARE the sheet names used in the workbook.
-  const lower = sheetName.toLowerCase();
-  if (lower.includes('platform') && !lower.includes('faculty')) {
-    ROLE_TO_SHEET['platforms'] = sheetName;
-  } else if (lower === 'faculty') {
-    ROLE_TO_SHEET['faculty'] = sheetName;
-  } else if (lower.includes('faculty_platform') || (lower.includes('faculty') && lower.includes('platform'))) {
-    ROLE_TO_SHEET['facultyPlatforms'] = sheetName;
-  } else if (lower.includes('vertical') && !lower.includes('faculty')) {
-    ROLE_TO_SHEET['verticals'] = sheetName;
-  } else if (lower.includes('faculty_vertical') || (lower.includes('faculty') && lower.includes('vertical'))) {
-    ROLE_TO_SHEET['facultyVerticals'] = sheetName;
-  } else if (lower.includes('collab')) {
-    ROLE_TO_SHEET['collaborations'] = sheetName;
+if (schema.roles) {
+  // Explicit mapping from the tenant config — preferred path.
+  Object.assign(ROLE_TO_SHEET, schema.roles);
+} else {
+  // Fallback heuristic for configs without an explicit roles mapping:
+  // derive roles from sheet names. Works for the standard schema.
+  for (const sheetName of Object.keys(SHEET_COLUMNS)) {
+    const lower = sheetName.toLowerCase();
+    if (lower.includes('platform') && !lower.includes('faculty')) {
+      ROLE_TO_SHEET['platforms'] = sheetName;
+    } else if (lower === 'faculty') {
+      ROLE_TO_SHEET['faculty'] = sheetName;
+    } else if (lower.includes('faculty_platform') || (lower.includes('faculty') && lower.includes('platform'))) {
+      ROLE_TO_SHEET['facultyPlatforms'] = sheetName;
+    } else if (lower.includes('vertical') && !lower.includes('faculty')) {
+      ROLE_TO_SHEET['verticals'] = sheetName;
+    } else if (lower.includes('faculty_vertical') || (lower.includes('faculty') && lower.includes('vertical'))) {
+      ROLE_TO_SHEET['facultyVerticals'] = sheetName;
+    } else if (lower.includes('collab')) {
+      ROLE_TO_SHEET['collaborations'] = sheetName;
+    }
   }
 }
 
-// Helper: get the sheet name for a logical role, falling back to the
-// config key name itself.
+// Helper: get the sheet name for a logical role.
 function sheetFor(role: string): string | undefined {
   return ROLE_TO_SHEET[role];
+}
+
+// Resolve the sheet for a logical role or fail with an actionable config
+// error. There are deliberately no hardcoded sheet-name fallbacks — the
+// tenant config must make every role resolvable.
+function requireSheet(role: string): string {
+  const name = sheetFor(role);
+  if (!name) {
+    throw new Error(
+      `Tenant config error: no sheet mapped for role "${role}". ` +
+      `Add an explicit "schema.roles" mapping to tenant.config.json.`
+    );
+  }
+  return name;
 }
 
 // Helper: get required columns for a sheet name.
@@ -112,15 +127,14 @@ export function validateWorkbook(raw: RawWorkbook): { data: WorkbookData; valida
   }
 
   // ---- Coerce and run row-level validation ----
-  // Use the resolved sheet names from the config. For the standard schema,
-  // these resolve to the canonical sheet names. For custom schemas, they
-  // resolve to whatever the tenant configured.
-  const platformsSheet = sheetFor('platforms') ?? 'Platforms';
-  const facultySheet = sheetFor('faculty') ?? 'Faculty';
-  const facultyPlatformsSheet = sheetFor('facultyPlatforms') ?? 'Faculty_Platforms';
-  const verticalsSheet = sheetFor('verticals') ?? 'Research_Verticals';
-  const facultyVerticalsSheet = sheetFor('facultyVerticals') ?? 'Faculty_Verticals';
-  const collaborationsSheet = sheetFor('collaborations') ?? 'Collaborations';
+  // Sheet names come from the tenant config (explicit roles mapping, or the
+  // name-heuristic fallback). Unresolvable roles throw a config error.
+  const platformsSheet = requireSheet('platforms');
+  const facultySheet = requireSheet('faculty');
+  const facultyPlatformsSheet = requireSheet('facultyPlatforms');
+  const verticalsSheet = requireSheet('verticals');
+  const facultyVerticalsSheet = requireSheet('facultyVerticals');
+  const collaborationsSheet = requireSheet('collaborations');
 
   const platforms = (raw[platformsSheet] ?? []).map(toPlatformRow);
   const faculty = (raw[facultySheet] ?? []).map(toFacultyRow);

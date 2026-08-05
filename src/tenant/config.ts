@@ -42,9 +42,25 @@ export interface EdgeTypeConfig {
   label: string;
 }
 
+/**
+ * Explicit logical-role → sheet-name mapping. The core engine consumes six
+ * fixed roles; this maps each role to the tenant's actual sheet name.
+ * When omitted, a name heuristic is used (works for the standard schema).
+ */
+export interface TenantSchemaRoles {
+  platforms: string;
+  faculty: string;
+  facultyPlatforms: string;
+  verticals: string;
+  facultyVerticals: string;
+  collaborations: string;
+}
+
 export interface TenantSchema {
   /** Map of sheet name → required column names. */
   sheets: Record<string, string[]>;
+  /** Explicit role → sheet-name mapping (preferred over the heuristic). */
+  roles?: TenantSchemaRoles;
   entityTypes: Record<string, EntityTypeConfig>;
   edgeTypes: Record<string, EdgeTypeConfig>;
 }

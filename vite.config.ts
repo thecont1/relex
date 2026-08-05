@@ -1,6 +1,6 @@
 import { defineConfig, type PluginOption } from 'vite';
 import react from '@vitejs/plugin-react';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve } from 'path';
 
 // Tenant-aware build configuration.
@@ -30,6 +30,14 @@ interface TenantConfig {
   dataSource: { type: string; path: string; headers?: Record<string, string> };
   schema: {
     sheets: Record<string, string[]>;
+    roles?: {
+      platforms: string;
+      faculty: string;
+      facultyPlatforms: string;
+      verticals: string;
+      facultyVerticals: string;
+      collaborations: string;
+    };
     entityTypes: Record<string, { label: string; searchable: boolean }>;
     edgeTypes: Record<string, { label: string }>;
   };
@@ -46,9 +54,13 @@ interface TenantConfig {
 function loadTenantConfig(slug: string): TenantConfig {
   const configPath = resolve(TENANTS_DIR, slug, 'tenant.config.json');
   if (!existsSync(configPath)) {
+    const available = readdirSync(TENANTS_DIR, { withFileTypes: true })
+      .filter(d => d.isDirectory())
+      .map(d => d.name)
+      .join(', ');
     throw new Error(
       `Tenant config not found: ${configPath}\n` +
-      `Available tenants: cense, test-dept\n` +
+      `Available tenants: ${available || '(none)'}\n` +
       `Run with TENANT=<slug> to build a specific tenant.`
     );
   }
@@ -56,8 +68,70 @@ function loadTenantConfig(slug: string): TenantConfig {
   return JSON.parse(raw) as TenantConfig;
 }
 
+const SCHEMA_ROLES = ['platforms', 'faculty', 'facultyPlatforms', 'verticals', 'facultyVerticals', 'collaborations'] as const;
+
+// Validates a tenant config at build time. Collects every problem and fails
+// the build with an actionable message, so a malformed config never produces
+// a silently broken bundle.
+function validateTenantConfig(config: TenantConfig, slug: string): void {
+  const problems: string[] = [];
+  const need = (cond: boolean, msg: string) => { if (!cond) problems.push(msg); };
+
+  need(!!config.tenantId, 'tenantId is required');
+  if (config.tenantId && config.tenantId !== slug) {
+    console.warn(`[tenant] warning: tenantId "${config.tenantId}" does not match folder slug "${slug}".`);
+  }
+  need(!!config.name, 'name is required');
+  need(!!config.description, 'description is required');
+  need(!!config.branding?.title, 'branding.title is required');
+  need(!!config.branding?.colorAccent, 'branding.colorAccent is required');
+  need(!!config.branding?.logo?.src, 'branding.logo.src is required');
+
+  need(config.dataSource?.type === 'local' || config.dataSource?.type === 'remote',
+    'dataSource.type must be "local" or "remote"');
+  need(!!config.dataSource?.path, 'dataSource.path is required');
+  if (config.dataSource?.type === 'local' && config.dataSource?.path) {
+    const dataFile = resolve(TENANTS_DIR, slug, 'public', config.dataSource.path.replace(/^\.\//, ''));
+    need(existsSync(dataFile), `dataSource.path "${config.dataSource.path}" not found at ${dataFile}`);
+  }
+
+  const sheets = config.schema?.sheets ?? {};
+  need(Object.keys(sheets).length > 0, 'schema.sheets must define at least one sheet');
+  for (const [sheet, cols] of Object.entries(sheets)) {
+    need(Array.isArray(cols) && cols.length > 0, `schema.sheets["${sheet}"] must list required columns`);
+  }
+  if (config.schema?.roles) {
+    for (const role of SCHEMA_ROLES) {
+      const sheetName = config.schema.roles[role];
+      need(!!sheetName, `schema.roles.${role} is required`);
+      if (sheetName) {
+        need(sheetName in sheets, `schema.roles.${role} maps to "${sheetName}", which is not in schema.sheets`);
+      }
+    }
+  } else {
+    console.warn('[tenant] warning: no schema.roles mapping — falling back to the sheet-name heuristic.');
+  }
+
+  need(!!config.features?.exportFilenameBase, 'features.exportFilenameBase is required');
+  need(!!config.coreVersion, 'coreVersion is required');
+
+  // Keep coreVersion honest: warn when the tenant was built against a
+  // different core version than package.json declares (see docs/VERSIONING.md).
+  const pkgVersion = (JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8')) as { version?: string }).version;
+  if (config.coreVersion && pkgVersion && config.coreVersion !== pkgVersion) {
+    console.warn(`[tenant] warning: coreVersion "${config.coreVersion}" differs from package.json version "${pkgVersion}". Update it when rebuilding against a new core.`);
+  }
+
+  if (problems.length > 0) {
+    throw new Error(
+      `Invalid tenant config for "${slug}":\n` + problems.map(p => `  - ${p}`).join('\n')
+    );
+  }
+}
+
 const slug = process.env.TENANT || 'cense';
 const tenantConfig = loadTenantConfig(slug);
+validateTenantConfig(tenantConfig, slug);
 
 // Per-tenant static assets. Each tenant's dist/ must contain ONLY that
 // tenant's data and branding — never another tenant's workbook. If the

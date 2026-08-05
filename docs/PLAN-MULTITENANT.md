@@ -37,25 +37,14 @@ The remaining work falls into the phases below. Each task lists the files it tou
     `tenants/cense/public/data/CeNSE_Master_Ecosystem_Dataset.xlsx`,
     `public/assets/cense/` → `tenants/cense/public/assets/cense/`.
   - Keep truly shared assets (if any) in the root `public/`.
-  - Update `.gitignore`: the CeNSE workbook is currently ignored by filename
-    at repo root — update the ignore rule to its new path
-    (`tenants/cense/public/data/*.xlsx` or equivalent).
-- [ ] **1.2 Layered `publicDir` in `vite.config.ts`.** Point Vite's
-  `publicDir` at `tenants/{slug}/public` when it exists, falling back to the
-  root `public/`. If shared assets are needed, copy root `public/` into the
-  build via a small plugin or keep shared assets in the tenant dir.
-  - Verify: `bun run build:cense` output `dist/cense/` contains the CeNSE
-    workbook; `bun run build:test-dept` output `dist/test-dept/` does **not**
-    contain any CeNSE files.
-- [ ] **1.3 Update docs.** Adjust the paths in `TENANT_ONBOARDING.md`
-  (steps 3–4) to the new tenant-scoped locations.
+  - Update `.gitignore`: the CeNSE workbook is currently ignored by filename at repo root — update the ignore rule to its new path (`tenants/cense/public/data/*.xlsx` or equivalent).
+- [ ] **1.2 Layered `publicDir` in `vite.config.ts`.** Point Vite's `publicDir` at `tenants/{slug}/public` when it exists, falling back to the root `public/`. If shared assets are needed, copy root `public/` into the build via a small plugin or keep shared assets in the tenant dir.
+  - Verify: `bun run build:cense` output `dist/cense/` contains the CeNSE workbook; `bun run build:test-dept` output `dist/test-dept/` does **not** contain any CeNSE files.
+- [ ] **1.3 Update docs.** Adjust the paths in `TENANT_ONBOARDING.md` (steps 3–4) to the new tenant-scoped locations.
 
 ## Phase 2 — Make the test-dept tenant real (acceptance criterion #2)
 
-**Problem:** `tenants/test-dept/tenant.config.json` references
-`./data/test_dept_dataset.xlsx` and `/assets/test-dept/logo.png`, neither of
-which exists. The "second tenant with zero core changes" criterion cannot be
-demonstrated until they do.
+**Problem:** `tenants/test-dept/tenant.config.json` references `./data/test_dept_dataset.xlsx` and `/assets/test-dept/logo.png`, neither of which exists. The "second tenant with zero core changes" criterion cannot be demonstrated until they do.
 
 - [ ] **2.1 Generate a synthetic test workbook.** Write a small script
   (e.g. `scripts/make-test-dept-workbook.ts`, run with `bunx tsx` or a one-off

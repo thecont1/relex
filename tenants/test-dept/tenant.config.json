@@ -24,6 +24,14 @@
       "Faculty_Verticals": ["Faculty", "Research Vertical"],
       "Collaborations": ["Faculty A", "Faculty B", "Project/Topic"]
     },
+    "roles": {
+      "platforms": "Platforms",
+      "faculty": "Faculty",
+      "facultyPlatforms": "Faculty_Platforms",
+      "verticals": "Research_Verticals",
+      "facultyVerticals": "Faculty_Verticals",
+      "collaborations": "Collaborations"
+    },
     "entityTypes": {
       "faculty": { "label": "Faculty", "searchable": true },
       "platform": { "label": "Platform", "searchable": false },

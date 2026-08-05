@@ -36,11 +36,23 @@ Edit `tenants/my-new-client/tenant.config.json`:
 | `dataSource.type` | `local` for a static file, `remote` for an HTTP endpoint |
 | `dataSource.path` | For `local`: relative path to the workbook under `tenants/{slug}/public/data/` (e.g. `./data/my_client_dataset.xlsx`). For `remote`: full URL. |
 | `dataSource.headers` | (Optional) HTTP headers for remote sources, e.g. `{"Authorization": "Bearer ..."}` |
-| `schema.sheets` | Map of sheet name → required column names. Use the standard schema if your workbook matches the default, or customize for different domain models. |
+| `schema.sheets` | Map of sheet name → required column names. Column names must match the standard schema (see "Schema limitation" below). |
+| `schema.roles` | Explicit map of the six logical roles (`platforms`, `faculty`, `facultyPlatforms`, `verticals`, `facultyVerticals`, `collaborations`) to your sheet names. Recommended for all tenants; without it a sheet-name heuristic is used. |
 | `schema.entityTypes` | Labels and searchability for each node type |
 | `schema.edgeTypes` | Labels for each edge type |
 | `features.exportFilenameBase` | Base filename for PNG/SVG exports (e.g. `my-client-network`) |
 | `coreVersion` | The core engine version this tenant is built against (e.g. `1.0.0`) |
+
+### Schema limitation (important)
+
+The core engine currently implements one fixed domain model: faculty,
+platforms, research verticals, and the three relationship kinds between
+them. Tenants may rename *sheets* via `schema.roles`, but *column* names
+are fixed by the standard schema (the row coercion in the core engine reads
+the standard column names). A client whose workbook uses different column
+names, or a genuinely different domain model (different node/edge kinds),
+requires core engine changes — that generalization is intentionally out of
+scope for now.
 
 ### 3. Place the data workbook
 
