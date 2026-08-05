@@ -173,18 +173,18 @@ export function validateWorkbook(raw: RawWorkbook): { data: WorkbookData; valida
   // Unknown entity references
   facultyPlatforms.forEach((row, i) => {
     if (!facultyNames.has(row.Faculty)) {
-      issues.push({ severity: 'warning', sheet: facultyPlatformsSheet, rowIndex: i + 2, message: `Unknown faculty \"${row.Faculty}\" in Faculty_Platforms.` });
+      issues.push({ severity: 'warning', sheet: facultyPlatformsSheet, rowIndex: i + 2, message: `Unknown faculty \"${row.Faculty}\" in ${facultyPlatformsSheet}.` });
     }
     if (!platformNames.has(row.Platform)) {
-      issues.push({ severity: 'warning', sheet: facultyPlatformsSheet, rowIndex: i + 2, message: `Unknown platform \"${row.Platform}\" in Faculty_Platforms.` });
+      issues.push({ severity: 'warning', sheet: facultyPlatformsSheet, rowIndex: i + 2, message: `Unknown platform \"${row.Platform}\" in ${facultyPlatformsSheet}.` });
     }
   });
   facultyVerticals.forEach((row, i) => {
     if (!facultyNames.has(row.Faculty)) {
-      issues.push({ severity: 'warning', sheet: facultyVerticalsSheet, rowIndex: i + 2, message: `Unknown faculty \"${row.Faculty}\" in Faculty_Verticals.` });
+      issues.push({ severity: 'warning', sheet: facultyVerticalsSheet, rowIndex: i + 2, message: `Unknown faculty \"${row.Faculty}\" in ${facultyVerticalsSheet}.` });
     }
     if (!verticalNames.has(row['Research Vertical'])) {
-      issues.push({ severity: 'warning', sheet: facultyVerticalsSheet, rowIndex: i + 2, message: `Unknown vertical \"${row['Research Vertical']}\" in Faculty_Verticals.` });
+      issues.push({ severity: 'warning', sheet: facultyVerticalsSheet, rowIndex: i + 2, message: `Unknown vertical \"${row['Research Vertical']}\" in ${facultyVerticalsSheet}.` });
     }
   });
 
@@ -199,10 +199,10 @@ export function validateWorkbook(raw: RawWorkbook): { data: WorkbookData; valida
       issues.push({ severity: 'warning', sheet: collaborationsSheet, rowIndex: rowNum, message: `Self-collaboration ignored: \"${row['Faculty A']}\" ↔ \"${row['Faculty B']}\".` });
     }
     if (!facultyNames.has(row['Faculty A'])) {
-      issues.push({ severity: 'warning', sheet: collaborationsSheet, rowIndex: rowNum, message: `Unknown faculty \"${row['Faculty A']}\" in Collaborations.` });
+      issues.push({ severity: 'warning', sheet: collaborationsSheet, rowIndex: rowNum, message: `Unknown faculty \"${row['Faculty A']}\" in ${collaborationsSheet}.` });
     }
     if (!facultyNames.has(row['Faculty B'])) {
-      issues.push({ severity: 'warning', sheet: collaborationsSheet, rowIndex: rowNum, message: `Unknown faculty \"${row['Faculty B']}\" in Collaborations.` });
+      issues.push({ severity: 'warning', sheet: collaborationsSheet, rowIndex: rowNum, message: `Unknown faculty \"${row['Faculty B']}\" in ${collaborationsSheet}.` });
     }
     if (!row['Project/Topic'] || !row['Project/Topic'].trim()) {
       issues.push({ severity: 'warning', sheet: collaborationsSheet, rowIndex: rowNum, message: 'Collaboration row has empty Project/Topic.' });
