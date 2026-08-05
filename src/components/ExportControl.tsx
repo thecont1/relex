@@ -31,6 +31,8 @@ export type ExportFormat = 'png' | 'svg';
 interface ExportControlProps {
   onExportPng: () => void;
   onExportSvg: () => void;
+  disabled?: boolean;
+  disabledReason?: string;
 }
 
 const STORAGE_KEY = 'relexplorer.exportFormat';
@@ -45,7 +47,12 @@ function readStoredFormat(): ExportFormat {
 
 const ITEMS: ExportFormat[] = ['png', 'svg'];
 
-export function ExportControl({ onExportPng, onExportSvg }: ExportControlProps) {
+export function ExportControl({
+  onExportPng,
+  onExportSvg,
+  disabled = false,
+  disabledReason = 'Export is available in Flat graph view.'
+}: ExportControlProps) {
   const [format, setFormat] = useState<ExportFormat>(readStoredFormat);
   const [open, setOpen] = useState(false);
 
@@ -58,6 +65,13 @@ export function ExportControl({ onExportPng, onExportSvg }: ExportControlProps) 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, format); } catch { /* ignore */ }
   }, [format]);
+
+  // Auto-close the menu when the control becomes disabled (e.g. the user
+  // switches view/render mode while the menu is open). Without this the
+  // still-rendered items could trigger an export after disabled flipped.
+  useEffect(() => {
+    if (disabled) setOpen(false);
+  }, [disabled]);
 
   // Close on outside pointer down.
   useEffect(() => {
@@ -84,12 +98,15 @@ export function ExportControl({ onExportPng, onExportSvg }: ExportControlProps) 
   }, [open]);
 
   const runExport = (f: ExportFormat) => {
+    if (disabled) return;
     if (f === 'png') onExportPng(); else onExportSvg();
   };
 
   const selectFormat = (f: ExportFormat) => {
+    if (disabled) { setOpen(false); return; }
     setFormat(f);
     setOpen(false);
+    runExport(f);
   };
 
   const focusItem = (i: number) => {
@@ -125,8 +142,9 @@ export function ExportControl({ onExportPng, onExportSvg }: ExportControlProps) 
         type="button"
         className="export-control__primary"
         onClick={() => runExport(format)}
+        disabled={disabled}
         aria-label={`Export current view as ${format.toUpperCase()}`}
-        title={`Export as ${format.toUpperCase()}`}
+        title={disabled ? disabledReason : `Export as ${format.toUpperCase()}`}
       >
         Export
       </button>
@@ -138,6 +156,8 @@ export function ExportControl({ onExportPng, onExportSvg }: ExportControlProps) 
         aria-expanded={open}
         aria-controls={menuId}
         aria-label="Select export format"
+        disabled={disabled}
+        title={disabled ? disabledReason : 'Select export format'}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onTriggerKeyDown}
       >
@@ -158,7 +178,9 @@ export function ExportControl({ onExportPng, onExportSvg }: ExportControlProps) 
                 ref={(el) => { itemRefs.current[i] = el; }}
                 className="export-control__menuitem"
                 aria-checked={format === f}
+                aria-disabled={disabled}
                 data-current={format === f}
+                disabled={disabled}
                 onClick={() => selectFormat(f)}
                 onKeyDown={(e) => onItemKeyDown(e, i)}
               >

@@ -57,11 +57,22 @@ export function buildAccessibleModel(graph: GraphModel): AccessibleModel {
         e.type === 'faculty-faculty' &&
         (e.source === n.id || e.target === n.id)
       );
-      const collaborators = collabEdges.map(e => {
+      const collaboratorMap = new Map<string, { name: string; projects: string[] }>();
+      for (const e of collabEdges) {
         const otherId = e.source === n.id ? e.target : e.source;
         const other = byId.get(otherId);
-        return { name: other?.label ?? otherId, projects: e.projects };
-      });
+        const name = other?.label ?? otherId;
+        const existing = collaboratorMap.get(name);
+        if (existing) {
+          // Merge projects from duplicate edges into the existing entry
+          for (const p of e.projects) {
+            if (!existing.projects.includes(p)) existing.projects.push(p);
+          }
+        } else {
+          collaboratorMap.set(name, { name, projects: [...e.projects] });
+        }
+      }
+      const collaborators = Array.from(collaboratorMap.values());
       // Sort collaborators alphabetically for stable screen-reader order
       collaborators.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -69,13 +80,15 @@ export function buildAccessibleModel(graph: GraphModel): AccessibleModel {
         .filter(e => e.type === 'faculty-vertical' && (e.source === n.id || e.target === n.id))
         .map(e => byId.get(e.source === n.id ? e.target : e.source)?.label ?? '')
         .filter(Boolean)
-        .sort();
+        .sort()
+        .filter((v, i, arr) => i === 0 || v !== arr[i - 1]);
 
       const platforms = graph.edges
         .filter(e => e.type === 'faculty-platform' && (e.source === n.id || e.target === n.id))
         .map(e => byId.get(e.source === n.id ? e.target : e.source)?.label ?? '')
         .filter(Boolean)
-        .sort();
+        .sort()
+        .filter((v, i, arr) => i === 0 || v !== arr[i - 1]);
 
       return {
         id: n.id,
@@ -101,6 +114,7 @@ export function buildAccessibleModel(graph: GraphModel): AccessibleModel {
         .map(e => byId.get(e.source === n.id ? e.target : e.source)?.label ?? '')
         .filter(Boolean)
         .sort()
+        .filter((v, i, arr) => i === 0 || v !== arr[i - 1])
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -115,6 +129,7 @@ export function buildAccessibleModel(graph: GraphModel): AccessibleModel {
         .map(e => byId.get(e.source === n.id ? e.target : e.source)?.label ?? '')
         .filter(Boolean)
         .sort()
+        .filter((v, i, arr) => i === 0 || v !== arr[i - 1])
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 
