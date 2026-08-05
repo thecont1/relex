@@ -10,43 +10,26 @@ Much of the refactor is already implemented on this branch:
 
 - `LICENSE.md` is already the Relex Business Source License (Step 1 of the design doc, code side).
 - Tenant config system exists: `src/tenant/config.ts` (typed accessor, build-time injection via `__TENANT_CONFIG__`), `tenants/cense/` and `tenants/test-dept/` config folders.
-- `vite.config.ts` injects the tenant config via `define`, rewrites
-  `index.html` title/description per tenant, and outputs to `dist/{slug}/`.
-- `package.json` has per-tenant `dev:`/`build:`/`preview:` scripts and a
-  `build:all` aggregate.
-- `src/lib/loadWorkbook.ts` reads `dataSource` (local/remote + headers) from
-  the tenant config — no hardcoded paths.
-- `src/lib/validateWorkbook.ts` reads sheet/column expectations from the
-  tenant config.
-- Branding (title, logo) is consumed from the tenant config in
-  `AppHeader.tsx` and `MobileTopBar.tsx`; export filenames use
-  `features.exportFilenameBase`.
-- Docs exist: `TENANT_ONBOARDING.md`, `VERSIONING.md`, `CHANGELOG.md`; README
-  is already rewritten for the multi-tenant model.
+- `vite.config.ts` injects the tenant config via `define`, rewrites `index.html` title/description per tenant, and outputs to `dist/{slug}/`.
+- `package.json` has per-tenant `dev:`/`build:`/`preview:` scripts and a `build:all` aggregate.
+- `src/lib/loadWorkbook.ts` reads `dataSource` (local/remote + headers) from the tenant config — no hardcoded paths.
+- `src/lib/validateWorkbook.ts` reads sheet/column expectations from the tenant config.
+- Branding (title, logo) is consumed from the tenant config in `AppHeader.tsx` and `MobileTopBar.tsx`; export filenames use `features.exportFilenameBase`.
+- Docs exist: `TENANT_ONBOARDING.md`, `VERSIONING.md`, `CHANGELOG.md`; README is already rewritten for the multi-tenant model.
 
-The remaining work falls into the phases below. Each task lists the files it
-touches and how to verify it. Execute phases in order; tasks within a phase
-are mostly independent.
+The remaining work falls into the phases below. Each task lists the files it touches and how to verify it. Execute phases in order; tasks within a phase are mostly independent.
 
 ---
 
 ## Phase 0 — Housekeeping
 
-- [ ] **0.1 Commit the design doc.** `docs/SINGLE-CODEBASE-MULTI-TENANT.md` is
-  untracked. Commit it (and this plan) on `arch/multitenant`.
+- [ ] **0.1 Commit the design doc.** `docs/SINGLE-CODEBASE-MULTI-TENANT.md` is untracked. Commit it (and this plan) on `arch/multitenant`.
   - Verify: `git status` is clean.
-- [ ] **0.2 Confirm repo visibility.** The design doc requires the repo to be
-  private (or source-available). Check with `gh repo view --json visibility`.
-  If still public, flag to the user — this is a GitHub settings change, not a
-  code change. Note the known limitation from the design doc: snapshots cloned
-  under Apache-2.0 retain those rights; only new commits are under the BSL.
+- [ ] **0.2 Confirm repo visibility.** The design doc requires the repo to be private (or source-available). Check with `gh repo view --json visibility`. If still public, flag to the user — this is a GitHub settings change, not a code change. Note the known limitation from the design doc: snapshots cloned under Apache-2.0 retain those rights; only new commits are under the BSL.
 
 ## Phase 1 — Per-tenant asset and data segregation (highest priority)
 
-**Problem:** Vite copies the entire `public/` directory into every tenant's
-`dist/{slug}/` output. Today that means a `test-dept` build would ship the
-CeNSE workbook (`public/data/CeNSE_Master_Ecosystem_Dataset.xlsx`) — a
-cross-tenant data leak that breaks the zero-data-custody story.
+**Problem:** Vite copies the entire `public/` directory into every tenant's `dist/{slug}/` output. Today that means a `test-dept` build would ship the CeNSE workbook (`public/data/CeNSE_Master_Ecosystem_Dataset.xlsx`) — a cross-tenant data leak that breaks the zero-data-custody story.
 
 - [ ] **1.1 Move tenant assets into tenant folders.**
   - Create `tenants/cense/public/` and move tenant-owned files there:

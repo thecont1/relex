@@ -22,6 +22,8 @@ export interface TenantBranding {
   logo: TenantLogo;
   title: string;
   colorAccent: string;
+  /** Header background color. Defaults to a neutral light grey. */
+  headerBackground?: string;
 }
 
 export interface TenantDataSource {
@@ -94,7 +96,8 @@ const FALLBACK_CONFIG: TenantConfig = {
   branding: {
     logo: { src: '', alt: '' },
     title: 'NETWORK EXPLORER',
-    colorAccent: '#0066cc'
+    colorAccent: '#0066cc',
+    headerBackground: '#dedddd'
   },
   dataSource: {
     type: 'local',

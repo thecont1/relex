@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="56" viewBox="0 0 240 56" role="img" aria-label="Test Department">
+  <rect x="2" y="2" width="52" height="52" rx="8" fill="#1e40af"/>
+  <text x="28" y="38" font-family="'Open Sans', Arial, sans-serif" font-size="26" font-weight="700" fill="#ffffff" text-anchor="middle">TD</text>
+  <text x="64" y="26" font-family="'Open Sans', Arial, sans-serif" font-size="17" font-weight="700" fill="#1e40af" letter-spacing="1">TEST</text>
+  <text x="64" y="46" font-family="'Open Sans', Arial, sans-serif" font-size="17" font-weight="700" fill="#1e40af" letter-spacing="1">DEPARTMENT</text>
+</svg>

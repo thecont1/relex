@@ -8,7 +8,8 @@
       "alt": "CeNSE · IISc"
     },
     "title": "CENTRE FOR NANOSCIENCE AND ENGINEERING",
-    "colorAccent": "#ed2229"
+    "colorAccent": "#ed2229",
+    "headerBackground": "#dedddd"
   },
   "dataSource": {
     "type": "local",

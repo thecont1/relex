@@ -25,6 +25,7 @@ interface TenantConfig {
     logo: { src: string; alt: string };
     title: string;
     colorAccent: string;
+    headerBackground?: string;
   };
   dataSource: { type: string; path: string; headers?: Record<string, string> };
   schema: {
