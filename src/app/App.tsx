@@ -232,6 +232,7 @@ export function App() {
           onSearchFocusNode={(id) => {
             gs.setSearchFocus(id);
             gs.setView('accessible');
+            gs.clearSearch();
             setHighlightNodeId(id);
             setLiveMessage(`Focused ${state.graph.nodes.find(n => n.id === id)?.label ?? 'entity'} in Accessible View.`);
           }}
