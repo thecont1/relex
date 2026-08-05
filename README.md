@@ -21,8 +21,10 @@ bun run dev:test-dept          # build the test-dept tenant
 bun run build                # build default tenant → dist/cense/
 bun run build:cense          # build cense tenant → dist/cense/
 bun run build:test-dept      # build test-dept tenant → dist/test-dept/
-bun run build:all            # build all tenants
-bun run preview              # serve dist/ on http://127.0.0.1:4173
+bun run build:all            # build all tenants (auto-discovers tenants/)
+bun run preview              # serve the default tenant's build on http://127.0.0.1:4173
+bun run deploy:cense         # deploy dist/cense to Cloudflare Pages
+bun run deploy:test-dept     # deploy dist/test-dept to Cloudflare Pages
 ```
 
 Node ≥ 20 and Bun ≥ 1.3 are required.
@@ -35,18 +37,25 @@ relex/
 │   ├── components/          # All UI components (generic, config-driven)
 │   ├── hooks/               # React hooks (data loading, state management)
 │   ├── lib/                 # Core logic (graph building, validation, layout)
-│   └── tenant/config.ts     # Typed accessor for build-time injected config
-├── tenants/                 # Per-client configuration only
+│   └── tenant/config.ts     # Typed accessor + asset URL resolver for the
+│                            #   build-time injected config
+├── tenants/                 # Per-client configuration, data, and branding
 │   ├── cense/
-│   │   └── tenant.config.json   # CeNSE branding, data source, schema
+│   │   ├── tenant.config.json   # CeNSE branding, data source, schema
+│   │   └── public/              # CeNSE-only files (workbook, logo) —
+│   │                            #   becomes the build's publicDir
 │   └── test-dept/
-│       └── tenant.config.json   # Fictional test tenant
-├── public/
-│   ├── data/                # Workbooks (one per tenant)
-│   └── assets/              # Branding assets (logos, etc.)
+│       ├── tenant.config.json   # Fictional reference tenant
+│       └── public/              # Synthetic dataset + logo (committed)
+├── scripts/
+│   ├── build-all.ts             # bun run build:all — discovers and builds
+│   │                            #   every tenant automatically
+│   └── make-test-dept-workbook.ts  # Regenerates the fictional test dataset
 ├── docs/
 │   ├── TENANT_ONBOARDING.md # Repeatable onboarding process
-│   └── VERSIONING.md        # Version tag and changelog convention
+│   ├── VERSIONING.md        # Version tag and changelog convention
+│   ├── SINGLE-CODEBASE-MULTI-TENANT.md  # Architecture design doc
+│   └── PLAN-MULTITENANT.md  # Executed migration plan (with decisions)
 ├── vite.config.ts           # Tenant-aware build (TENANT=slug bun run build)
 ├── package.json
 └── CHANGELOG.md
@@ -55,22 +64,34 @@ relex/
 ### How it works
 
 1. **Tenant config** (`tenants/{slug}/tenant.config.json`) specifies:
-   - Branding (logo, title, color accent)
+   - Branding (logo, title, color accent, header background)
    - Data source (local file path or remote URL, with optional auth headers)
-   - Schema (sheet names, column names, entity/edge type labels)
+   - Schema (required `schema.roles` mapping of the six logical roles to
+     sheet names, required columns per sheet, entity/edge type labels)
    - Feature flags (default layer visibility, export filename base)
 
-2. **Build-time injection**: `vite.config.ts` reads the tenant config and
-   inlines it as a global `__TENANT_CONFIG__` constant via Vite's `define`
-   option. Each tenant's bundle has its own config baked in — no runtime
-   fetch, no runtime branching.
+2. **Build-time injection and validation**: `vite.config.ts` reads the tenant
+   config, validates it (required fields, local workbook existence, roles ↔
+   sheets consistency — malformed configs fail the build), and inlines it as
+   a global `__TENANT_CONFIG__` constant via Vite's `define` option. Each
+   tenant's bundle has its own config baked in — no runtime fetch, no runtime
+   branching.
 
-3. **Core engine** (`src/`) reads the config via `src/tenant/config.ts` to
-   know branding, data source, and schema. The core contains zero hardcoded
+3. **Per-tenant assets**: each tenant's `tenants/{slug}/public/` becomes the
+   build's `publicDir`, so a tenant's `dist/` contains only that tenant's
+   data and branding — never another tenant's workbook. Tenant workbooks are
+   gitignored; only the fictional test-dept dataset is committed.
+
+4. **Core engine** (`src/`) reads the config via `src/tenant/config.ts` to
+   know branding, data source, and schema. Brand colors reach the CSS via
+   `--tenant-accent` / `--tenant-header-bg` custom properties; asset paths
+   resolve against the app base URL. The core contains zero hardcoded
    tenant-specific references.
 
-4. **Deployment**: Each tenant gets its own `dist/{slug}/` output, deployed
-   to its own subdomain, path, or intranet server.
+5. **Deployment**: Each tenant gets its own `dist/{slug}/` output, deployed
+   to its own Cloudflare Pages project (`bun run deploy:{slug}`), subdomain,
+   path, or intranet server. The relative base (`./`) works under any mount
+   path.
 
 ### Adding a new tenant
 
@@ -80,15 +101,18 @@ build → deploy.
 
 ## How to update the data
 
-1. Edit the Excel workbook in `public/data/` using Excel / Numbers / LibreOffice / Google Sheets.
-2. Drop the updated file in place. The workbook is fetched on every page load (cache-busted). No redeploy is required.
-3. Users can also click **Refresh data** in the app to re-fetch without reloading the page.
+1. Edit the tenant's Excel workbook in `tenants/{slug}/public/data/` using Excel / Numbers / LibreOffice / Google Sheets.
+2. Drop the updated file in place (and re-upload it to the tenant's hosting if deployed). The workbook is fetched on every page load (cache-busted), so no rebuild is required for a local/intranet deployment.
+3. Users can also click **Reset** in the app to re-fetch without reloading the page.
 
 ## Required workbook schema
 
-The workbook is validated on load. Sheet names and column names are read from
-the tenant config (not hardcoded), so future clients with different domain
-models can be supported without touching core code.
+The workbook is validated on load against the tenant config: the required
+`schema.roles` mapping tells the core engine which sheet plays which logical
+role, and `schema.sheets` lists the required columns per sheet. Sheet names
+may differ per tenant; column names follow the standard schema below (see
+"Schema limitation" in [docs/TENANT_ONBOARDING.md](./docs/TENANT_ONBOARDING.md)
+for what is and isn't customizable).
 
 The default schema models an organizational ecosystem:
 
@@ -104,8 +128,10 @@ The default schema models an organizational ecosystem:
 Non-fatal warnings are surfaced for blank sectors, unknown references in
 relationship sheets, duplicate rows, and malformed collaboration rows.
 
-To customize the schema for a different domain model, edit the `schema.sheets`
-map in the tenant config.
+To use different sheet names, remap the six logical roles via `schema.roles`
+in the tenant config. A genuinely different domain model (different node/edge
+kinds or column semantics) requires core engine changes — that
+generalization is intentionally out of scope for now.
 
 ## Default view choice (and justification)
 

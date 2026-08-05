@@ -5,8 +5,10 @@
 **React 18.3.1** - UI framework with hooks-based state management. Uses `StrictMode` for development checks and the new `createRoot` API for concurrent rendering.
 
 **Vite 5.4.10** - Build tool and dev server. Configured with:
-- Relative base path (`./`) for intranet deployment flexibility
+- Relative base path (`./`) for intranet/subpath deployment flexibility
 - Tenant-aware build: `TENANT={slug} vite build` reads `tenants/{slug}/tenant.config.json` and inlines it as a global `__TENANT_CONFIG__` constant
+- Build-time tenant config validation (`validateTenantConfig`): required fields, local workbook existence, `schema.roles` ↔ `schema.sheets` consistency, relative logo paths; malformed configs fail the build with actionable errors. Warns when `coreVersion` drifts from `package.json` version.
+- Per-tenant `publicDir`: `tenants/{slug}/public/` (falls back to repo-root `public/`), so each build output contains only that tenant's data and branding
 - Output to `dist/{slug}/` so multiple tenants can coexist
 - Dev server on port 5173 with Docker host support
 - Preview server on port 4173
@@ -26,18 +28,40 @@ The codebase is structured as a **single codebase, multi-tenant deployment**:
 
 ```
 src/                     # Shared core engine (zero tenant-specific code)
-  tenant/config.ts       # Typed accessor for build-time injected config
+  tenant/config.ts       # Typed accessor + resolveAssetUrl for the injected config
   components/            # All UI components (generic, config-driven)
   hooks/                 # React hooks (data loading, state management)
   lib/                   # Core logic (graph building, validation, layout)
-tenants/{slug}/          # Per-client configuration only
+tenants/{slug}/          # Per-client configuration, data, and branding
   tenant.config.json     # Branding, data source, schema mapping
+  public/                # Tenant-only static files (workbook, logo) —
+                         #   becomes the build's publicDir
+scripts/build-all.ts     # Discovers and builds every tenant (bun run build:all)
 ```
 
-**Build-time tenant injection**: `vite.config.ts` reads the tenant config and
-inlines it as a global `__TENANT_CONFIG__` constant via Vite's `define` option.
-Each tenant's bundle has its own config baked in — no runtime fetch, no runtime
-branching on tenant identity.
+**Build-time tenant injection**: `vite.config.ts` reads and validates the
+tenant config, then inlines it as a global `__TENANT_CONFIG__` constant via
+Vite's `define` option. Each tenant's bundle has its own config baked in — no
+runtime fetch, no runtime branching on tenant identity.
+
+**Schema contract**: the tenant config's `schema.roles` mapping (required at
+build time) maps the six fixed logical roles (platforms, faculty,
+facultyPlatforms, verticals, facultyVerticals, collaborations) to the tenant's
+sheet names; `schema.sheets` lists required columns per sheet. Column names
+and the domain model itself are fixed by the standard schema — see "Schema
+limitation" in `docs/TENANT_ONBOARDING.md`.
+
+**Tenant theming**: at app start, `branding.colorAccent` and
+`branding.headerBackground` are applied as the CSS custom properties
+`--tenant-accent`, `--brand-accent`, and `--tenant-header-bg`, so all styling
+resolves from the config with no hardcoded brand colors in core CSS. Tenant
+asset paths (e.g. the logo) are relative and resolved against
+`import.meta.env.BASE_URL` via `resolveAssetUrl`, keeping them correct under
+arbitrary mount paths.
+
+**Deployment**: static bundles deploy to per-tenant Cloudflare Pages projects
+(`bun run deploy:{slug}`, backed by `wrangler pages deploy`), or are handed
+to clients as a zip for intranet hosting.
 
 **Zero data custody**: Each tenant's browser fetches their own workbook directly
 from their own data source URL. The deployed static bundle never proxies or
