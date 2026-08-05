@@ -14,11 +14,16 @@ configuration under `tenants/{slug}/` and its own build output under
 
 ### 1. Clone the tenant config template
 
-Copy the template directory to create a new tenant:
+Copy the template directory to create a new tenant. Use `test-dept` as the
+template — it is the fictional reference tenant, so nothing client-specific
+leaks into the new folder:
 
 ```bash
-cp -r tenants/cense tenants/my-new-client
+cp -r tenants/test-dept tenants/my-new-client
 ```
+
+Then replace the contents of `tenants/my-new-client/public/` (workbook and
+logo) with the client's own data and branding in steps 3–4.
 
 ### 2. Fill in the tenant config
 
@@ -33,6 +38,7 @@ Edit `tenants/my-new-client/tenant.config.json`:
 | `branding.logo.src` | Path to the logo image under `tenants/{slug}/public/assets/` |
 | `branding.logo.alt` | Alt text for the logo |
 | `branding.colorAccent` | Primary accent color (hex) |
+| `branding.headerBackground` | (Optional) Header background color (hex). Defaults to `#dedddd`. |
 | `dataSource.type` | `local` for a static file, `remote` for an HTTP endpoint |
 | `dataSource.path` | For `local`: relative path to the workbook under `tenants/{slug}/public/data/` (e.g. `./data/my_client_dataset.xlsx`). For `remote`: full URL. |
 | `dataSource.headers` | (Optional) HTTP headers for remote sources, e.g. `{"Authorization": "Bearer ..."}` |
@@ -89,6 +95,39 @@ intranet web server).
 
 The app uses a relative base path (`./`), so it works under any mount path
 without configuration changes.
+
+#### Cloudflare Pages (default target)
+
+Each tenant gets its own Pages project named `relex-{slug}`. One-time setup
+per tenant (requires Cloudflare credentials via `bunx wrangler login` or a
+`CLOUDFLARE_API_TOKEN` env var):
+
+```bash
+bunx wrangler pages project create relex-my-new-client --production-branch=main
+```
+
+Then deploy with the matching script:
+
+```bash
+bun run deploy:my-new-client
+# equivalent to:
+# bunx wrangler pages deploy dist/my-new-client --project-name=relex-my-new-client
+```
+
+Add a `deploy:{slug}` script to `package.json` for each new tenant, following
+the existing `deploy:cense` / `deploy:test-dept` pattern.
+
+#### Intranet hand-off
+
+For clients hosting on their own intranet, zip the tenant's build output and
+hand it over — no credentials or pipeline needed on your side:
+
+```bash
+cd dist/my-new-client && zip -r ../my-new-client.zip . && cd ../..
+```
+
+The bundle is fully static and self-contained; any web server (or even a
+static-file server on the client's network) can host it.
 
 ### 7. Verify
 
