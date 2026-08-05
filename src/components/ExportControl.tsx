@@ -31,6 +31,8 @@ export type ExportFormat = 'png' | 'svg';
 interface ExportControlProps {
   onExportPng: () => void;
   onExportSvg: () => void;
+  disabled?: boolean;
+  disabledReason?: string;
 }
 
 const STORAGE_KEY = 'relexplorer.exportFormat';
@@ -45,7 +47,12 @@ function readStoredFormat(): ExportFormat {
 
 const ITEMS: ExportFormat[] = ['png', 'svg'];
 
-export function ExportControl({ onExportPng, onExportSvg }: ExportControlProps) {
+export function ExportControl({
+  onExportPng,
+  onExportSvg,
+  disabled = false,
+  disabledReason = 'Export is available in Flat graph view.'
+}: ExportControlProps) {
   const [format, setFormat] = useState<ExportFormat>(readStoredFormat);
   const [open, setOpen] = useState(false);
 
@@ -90,6 +97,7 @@ export function ExportControl({ onExportPng, onExportSvg }: ExportControlProps) 
   const selectFormat = (f: ExportFormat) => {
     setFormat(f);
     setOpen(false);
+    runExport(f);
   };
 
   const focusItem = (i: number) => {
@@ -125,8 +133,9 @@ export function ExportControl({ onExportPng, onExportSvg }: ExportControlProps) 
         type="button"
         className="export-control__primary"
         onClick={() => runExport(format)}
+        disabled={disabled}
         aria-label={`Export current view as ${format.toUpperCase()}`}
-        title={`Export as ${format.toUpperCase()}`}
+        title={disabled ? disabledReason : `Export as ${format.toUpperCase()}`}
       >
         Export
       </button>
@@ -138,6 +147,8 @@ export function ExportControl({ onExportPng, onExportSvg }: ExportControlProps) 
         aria-expanded={open}
         aria-controls={menuId}
         aria-label="Select export format"
+        disabled={disabled}
+        title={disabled ? disabledReason : 'Select export format'}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onTriggerKeyDown}
       >

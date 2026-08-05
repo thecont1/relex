@@ -1123,6 +1123,10 @@ details.acc-disclose > .acc-disclose-body {
 .export-control:hover {
   border-color: #0f172a;
 }
+.export-control:has(button:disabled) {
+  border-color: var(--border-subtle);
+  opacity: 0.58;
+}
 .export-control__primary,
 .export-control__chevron {
   font-family: 'Unbounded', sans-serif;
@@ -1147,6 +1151,17 @@ details.acc-disclose > .acc-disclose-body {
   padding: 0 10px;
   border-left: 1px solid var(--border-subtle);
   border-radius: 0 2px 2px 0;
+}
+.export-control__primary:disabled,
+.export-control__chevron:disabled {
+  cursor: not-allowed;
+}
+.export-control__primary:disabled:hover,
+.export-control__chevron:disabled:hover,
+.export-control__primary:disabled:active,
+.export-control__chevron:disabled:active {
+  background: transparent;
+  color: var(--text-primary);
 }
 .export-control:hover .export-control__chevron {
   border-left-color: rgba(15, 23, 42, 0.18);

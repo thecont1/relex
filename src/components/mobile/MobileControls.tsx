@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { MobileSheet } from './MobileSheet';
 import { sectorColor } from '../../lib/colorSystem';
 import { Legend } from '../Legend';
@@ -22,13 +22,10 @@ interface Props {
   view: ViewMode;
   onViewChange: (v: ViewMode) => void;
   visibleNodeIds: Set<string>;
-  visibleEdgeIds: Set<string>;
-  refreshedAt: string | null;
   onRefresh: () => void;
   onReset: () => void;
   onExportPng: () => void;
   onExportSvg: () => void;
-  resetting: boolean;
   /** Which sheet is open — controlled by parent so MobileTopBar can open More */
   openSheet: SheetType;
   onOpenSheet: (s: SheetType) => void;
@@ -39,7 +36,7 @@ interface Props {
 }
 
 /**
- * Mobile controls: stats chip + trigger row (Filters / View) + four
+ * Mobile controls: trigger row (Filters / View) + four
  * bottom sheets (filters, view, more, about). All sheets use the shared
  * MobileSheet primitive.
  */
@@ -51,53 +48,11 @@ export function MobileControls(props: Props) {
     (filters.showPlatforms ? 0 : 1) +
     (filters.showVerticals ? 0 : 1) +
     (filters.showCollaborations ? 0 : 1) +
-    (filters.showRelationships ? 0 : 1) +
+    (props.view === 'visual' && !filters.showRelationships ? 1 : 0) +
     filters.activeSectors.size;
-
-  // Stats chip — full words, wrapping pairs
-  const c = graph.counts;
-  const refreshedShort = props.refreshedAt
-    ? new Date(props.refreshedAt).toLocaleString('en-GB', { hour: '2-digit', minute: '2-digit' })
-    : '';
-  const [statsExpanded, setStatsExpanded] = useState(false);
 
   return (
     <div className="mobile-controls">
-      {/* Stats chip */}
-      <div
-        className="mobile-stats-chip"
-        onClick={() => setStatsExpanded(e => !e)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            setStatsExpanded(expanded => !expanded);
-          }
-        }}
-        role="button"
-        tabIndex={0}
-        aria-label="Network summary"
-        aria-expanded={statsExpanded}
-      >
-        <span className="mobile-stats-chip__line">
-          <span className="mobile-stats-chip__pair">{c.faculty} Faculty</span>
-          <span className="mobile-stats-chip__sep">·</span>
-          <span className="mobile-stats-chip__pair">{c.verticals} Verticals</span>
-          <span className="mobile-stats-chip__sep">·</span>
-          <span className="mobile-stats-chip__pair">{c.platforms} Platforms</span>
-          <span className="mobile-stats-chip__sep">·</span>
-          <span className="mobile-stats-chip__pair">{c.edges['faculty-faculty']} Collaborations</span>
-        </span>
-        <span className="mobile-stats-chip__meta">
-          <span>Showing {props.visibleNodeIds.size}/{graph.nodes.length} nodes · {props.visibleEdgeIds.size}/{graph.edges.length} relationships</span>
-          {refreshedShort && <span className="mobile-stats-chip__refreshed">Refreshed {refreshedShort}</span>}
-        </span>
-        {statsExpanded && (
-          <span className="mobile-stats-chip__expanded">
-            Counts reflect the active sector and relationship filters.
-          </span>
-        )}
-      </div>
-
       {/* Trigger row — two buttons only */}
       <div className="mobile-controls-row">
         <button
@@ -185,10 +140,12 @@ export function MobileControls(props: Props) {
               <input type="checkbox" checked={filters.showCollaborations} onChange={props.onToggleCollaborations} />
               <span>Collaborations</span>
             </label>
-            <label className="mobile-toggle-row">
-              <input type="checkbox" checked={filters.showRelationships} onChange={props.onToggleRelationships} />
-              <span>Relationship Lines</span>
-            </label>
+            {props.view === 'visual' && (
+              <label className="mobile-toggle-row">
+                <input type="checkbox" checked={filters.showRelationships} onChange={props.onToggleRelationships} />
+                <span>Relationship Lines</span>
+              </label>
+            )}
           </div>
         </div>
       </MobileSheet>
@@ -251,8 +208,24 @@ export function MobileControls(props: Props) {
           </MenuGroup>
           <MenuGroup title="Data">
             <button type="button" className="mobile-more-item" onClick={() => { props.onRefresh(); onCloseSheet(); }}>Refresh data</button>
-            <button type="button" className="mobile-more-item" onClick={() => { props.onExportPng(); onCloseSheet(); }}>Export PNG</button>
-            <button type="button" className="mobile-more-item" onClick={() => { props.onExportSvg(); onCloseSheet(); }}>Export SVG</button>
+            <button
+              type="button"
+              className="mobile-more-item"
+              disabled={props.view !== 'visual' || props.renderMode !== 'flat'}
+              title={props.view !== 'visual' || props.renderMode !== 'flat' ? 'Available in Flat graph view' : undefined}
+              onClick={() => { props.onExportPng(); onCloseSheet(); }}
+            >
+              Export PNG{props.view !== 'visual' || props.renderMode !== 'flat' ? ' — Flat view only' : ''}
+            </button>
+            <button
+              type="button"
+              className="mobile-more-item"
+              disabled={props.view !== 'visual' || props.renderMode !== 'flat'}
+              title={props.view !== 'visual' || props.renderMode !== 'flat' ? 'Available in Flat graph view' : undefined}
+              onClick={() => { props.onExportSvg(); onCloseSheet(); }}
+            >
+              Export SVG{props.view !== 'visual' || props.renderMode !== 'flat' ? ' — Flat view only' : ''}
+            </button>
           </MenuGroup>
           <MenuGroup title="Help">
             <button type="button" className="mobile-more-item" onClick={() => { onCloseSheet(); onOpenSheet('about'); }}>About this diagram</button>

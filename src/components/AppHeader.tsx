@@ -6,7 +6,7 @@
  * without any hardcoded client-specific references.
  *
  * Layout:
- *   - Title (tenant-configurable, e.g. "CENTRE FOR NANOSCIENCE AND ENGINEERING") left.
+ *   - Tenant-configurable institutional title on the left.
  *   - Search input centred — the official app search. Faculty matches appear
  *     in a dropdown directly under the input.
  *   - Combined logo on the far right.
@@ -25,6 +25,7 @@ interface AppHeaderProps {
   onRefresh: () => void;
   onExportPng: () => void;
   onExportSvg: () => void;
+  exportEnabled: boolean;
   /** Sets the global search query (drives the faculty dropdown below). */
   onSearch: (query: string) => void;
   /** Current search query (controlled). */
@@ -43,6 +44,7 @@ export function AppHeader({
   onRefresh,
   onExportPng,
   onExportSvg,
+  exportEnabled,
   onSearch,
   searchQuery,
   onSearchFocusNode,
@@ -164,7 +166,11 @@ export function AppHeader({
           >
             Refresh
           </button>
-          <ExportControl onExportPng={onExportPng} onExportSvg={onExportSvg} />
+          <ExportControl
+            onExportPng={onExportPng}
+            onExportSvg={onExportSvg}
+            disabled={!exportEnabled}
+          />
         </div>
       </div>
     </header>

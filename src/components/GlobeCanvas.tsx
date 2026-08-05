@@ -403,6 +403,7 @@ function computeVisibleIds(graph: GraphModel, filters: GraphFilters): VisibleSet
     nodes.add(n.id);
   }
   for (const e of graph.edges) {
+    if (!filters.showRelationships) continue;
     if (e.type === 'faculty-faculty' && !filters.showCollaborations) continue;
     if (e.type === 'faculty-platform' && !filters.showPlatforms) continue;
     if (e.type === 'faculty-vertical' && !filters.showVerticals) continue;

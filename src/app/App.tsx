@@ -204,6 +204,7 @@ export function App() {
           onRefresh={handleSoftReset}
           onExportPng={() => {}}
           onExportSvg={() => {}}
+          exportEnabled={false}
           searchQuery=""
           onSearch={() => {}}
           onSearchFocusNode={() => {}}
@@ -252,13 +253,10 @@ export function App() {
           view={gs.view}
           onViewChange={gs.setView}
           visibleNodeIds={gs.visibleNodeIds}
-          visibleEdgeIds={gs.visibleEdgeIds}
-          refreshedAt={state.refreshedAt}
           onRefresh={handleSoftReset}
           onReset={handleReset}
           onExportPng={onExportPng}
           onExportSvg={onExportSvg}
-          resetting={resetting}
           openSheet={mobileSheet}
           onOpenSheet={setMobileSheet}
           onCloseSheet={() => setMobileSheet('none')}
@@ -343,6 +341,7 @@ export function App() {
         onRefresh={handleSoftReset}
         onExportPng={onExportPng}
         onExportSvg={onExportSvg}
+        exportEnabled={gs.view === 'visual' && gs.renderMode === 'flat'}
         searchQuery={gs.search.query}
         onSearch={(q) => {
           gs.setSearchQuery(q);
