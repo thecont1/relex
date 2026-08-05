@@ -106,16 +106,16 @@ Media queries in `mobile.css` use the same breakpoint tokens, and the
 ≤ 900px. No conditional sub-tree, two separate components.
 
 **MobileTopBar structure:**
-- left: wordmark `CeNSE Ecosystem` (no institutional logos)
-- center: text-first SearchInput (full-width, prominent, 44px touch target)
-- right: text-based "More" trigger (opens the More sheet — see 3.6)
+- left: tenant logo (`branding.logo.src`, conditionally rendered when configured) + institutional wordmark (`branding.title`, uppercased, accent-colored via `branding.colorAccent`). The logo/wordmark pair mirrors the desktop `AppHeader` lockup, scaled down for mobile.
+- center/below: text-first SearchInput (full-width, prominent, 44px touch target)
+- right: SVG hamburger-menu trigger (three-line icon, `aria-label="Open menu"`) that opens the More sheet — see 3.6
 
 **Behaviour:**
 - Sticky at top, `backdrop-filter: blur(6px)` over dark surface.
 - At ≤ 760px, no vertical padding above/below input; height = 48px total.
 - At max-height ≤ 500px, reduce height to 40px and drop the wordmark to text-only
   14px.
-- No icons. All actions are text labels.
+- The only icon in the top bar is the SVG hamburger-menu trigger; all other actions remain text labels.
 
 **Search:**
 - Same search pipeline as desktop (SearchBar component owns `onSearch`,
@@ -155,6 +155,10 @@ with a trigger row + bottom sheets.
 - `Filters` — button, opens Filter sheet
 - `View` — button, opens View sheet (graph / flat / globe / accessible)
 - `More` — button, opens More sheet (extras: Refresh / Export / Legend / About)
+
+> **Note:** The More sheet is also opened from the MobileTopBar hamburger-menu
+> trigger (see 3.1). Both entry points call the same `onMore` handler, which
+> sets `mobileSheet = 'more'` in `App`.
 
 **Trigger row behaviour:**
 - Sticky under MobileTopBar (same blur + surface).

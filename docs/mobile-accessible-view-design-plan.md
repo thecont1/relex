@@ -79,20 +79,18 @@ Use a restrained Swiss-inspired system:
 ## Header plan
 
 ### What to change
-- Remove logo artwork in mobile mode.
-- Keep only the wordmark.
-- Match the header background exactly to the surrounding app background so there is no visible seam.
-- Allow the wordmark to wrap to two lines instead of truncating.
+- Show the configured tenant logo (`branding.logo.src`) when provided, paired with the institutional wordmark (`branding.title`). This mirrors the desktop `AppHeader` lockup at a mobile scale.
+- The wordmark is uppercased and colored with `branding.colorAccent` to maintain brand identity.
+- The header background matches the opaque tenant surface used in the widescreen header (no visible seam).
+- The wordmark wraps naturally rather than truncating.
 
-### Recommended behavior
-- Use a compact institutional wordmark such as:
-  - `Centre for Nanoscience and Engineering`
-  - Optional smaller support line: `CeNSE · IISc`
-- If space is tight, wrap naturally rather than ellipsizing.
-- Keep the hamburger trigger, but make it visually quieter and aligned to the same surface system.
+### Implemented behavior
+- `MobileTopBar` renders `branding.logo.src` (conditionally, only when non-empty) alongside the wordmark in a grid layout (`auto minmax(0, 1fr)`).
+- The menu trigger is an SVG hamburger icon (three-line icon, 20×20) with `aria-label="Open menu"`, replacing the earlier text-based "More" trigger.
+- The logo width is `clamp(72px, 24vw, 92px)` to scale fluidly across mobile widths.
 
 ### Notes
-The goal is not to erase identity; it is to reduce institutional overhead on a small screen. A clean typographic wordmark is more appropriate here than a logo lockup.
+The tenant-branding contract ensures identity is preserved on mobile without the overhead of a full desktop lockup. The logo + wordmark pair is the configured tenant identity, not hardcoded institutional artwork.
 
 ---
 
@@ -443,10 +441,10 @@ Only keep controls in the top region that help the user answer: “What am I loo
 ## Specific implementation notes for the coding agent
 
 ### 1. Header
-- Remove logos on mobile breakpoints
-- Match header background to app background exactly
+- Show the configured tenant logo (`branding.logo.src`) when provided, paired with the wordmark (`branding.title`)
+- Use an SVG hamburger icon as the menu trigger (right-aligned, `aria-label="Open menu"`), opening the More sheet
+- Match header background to the opaque tenant surface used in the widescreen header
 - Replace truncation with wrapping
-- Keep menu trigger aligned right
 
 ### 2. Stats
 - Split stats into primary metrics and secondary metadata
