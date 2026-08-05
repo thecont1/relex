@@ -66,6 +66,13 @@ export function ExportControl({
     try { localStorage.setItem(STORAGE_KEY, format); } catch { /* ignore */ }
   }, [format]);
 
+  // Auto-close the menu when the control becomes disabled (e.g. the user
+  // switches view/render mode while the menu is open). Without this the
+  // still-rendered items could trigger an export after disabled flipped.
+  useEffect(() => {
+    if (disabled) setOpen(false);
+  }, [disabled]);
+
   // Close on outside pointer down.
   useEffect(() => {
     if (!open) return;
@@ -91,10 +98,12 @@ export function ExportControl({
   }, [open]);
 
   const runExport = (f: ExportFormat) => {
+    if (disabled) return;
     if (f === 'png') onExportPng(); else onExportSvg();
   };
 
   const selectFormat = (f: ExportFormat) => {
+    if (disabled) { setOpen(false); return; }
     setFormat(f);
     setOpen(false);
     runExport(f);
@@ -169,7 +178,9 @@ export function ExportControl({
                 ref={(el) => { itemRefs.current[i] = el; }}
                 className="export-control__menuitem"
                 aria-checked={format === f}
+                aria-disabled={disabled}
                 data-current={format === f}
+                disabled={disabled}
                 onClick={() => selectFormat(f)}
                 onKeyDown={(e) => onItemKeyDown(e, i)}
               >
