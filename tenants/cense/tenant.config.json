@@ -4,11 +4,12 @@
   "description": "An accessible visualization of faculty, research platforms, verticals, and collaborations at the Centre for Nano Science and Engineering.",
   "branding": {
     "logo": {
-      "src": "/assets/cense/cense-iisc-logo.png",
+      "src": "assets/cense/cense-iisc-logo.png",
       "alt": "CeNSE · IISc"
     },
     "title": "CENTRE FOR NANOSCIENCE AND ENGINEERING",
-    "colorAccent": "#ed2229"
+    "colorAccent": "#ed2229",
+    "headerBackground": "#dedddd"
   },
   "dataSource": {
     "type": "local",
@@ -22,6 +23,14 @@
       "Research_Verticals": ["Vertical ID", "Research Vertical", "Sector"],
       "Faculty_Verticals": ["Faculty", "Research Vertical"],
       "Collaborations": ["Faculty A", "Faculty B", "Project/Topic"]
+    },
+    "roles": {
+      "platforms": "Platforms",
+      "faculty": "Faculty",
+      "facultyPlatforms": "Faculty_Platforms",
+      "verticals": "Research_Verticals",
+      "facultyVerticals": "Faculty_Verticals",
+      "collaborations": "Collaborations"
     },
     "entityTypes": {
       "faculty": { "label": "Faculty", "searchable": true },

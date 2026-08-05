@@ -900,11 +900,12 @@ details.acc-disclose > .acc-disclose-body {
   }
 }
 
-/* ---------- CeNSE-style header (mirrors cense.iisc.ac.in) ---------- */
+/* ---------- App header (branding driven by tenant CSS variables) ---------- */
 .app-header {
-  /* Always use the logo's grey (#dedddd) so the logo merges seamlessly with
+  /* Uses the tenant's header background (--tenant-header-bg, set from the
+     tenant config at app start) so the tenant logo merges seamlessly with
      the header background in both light and dark modes. */
-  background: #dedddd;
+  background: var(--tenant-header-bg, #dedddd);
   color: var(--text-primary);
   font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   border-bottom: 1px solid var(--border-subtle);
@@ -940,7 +941,7 @@ details.acc-disclose > .acc-disclose-body {
 :root[data-theme='dark'] .app-header__action:hover {
   background: #0f172a;
   border-color: #0f172a;
-  color: #dedddd;
+  color: var(--tenant-header-bg, #dedddd);
 }
 .app-header__top {
   display: grid;
@@ -951,7 +952,7 @@ details.acc-disclose > .acc-disclose-body {
 }
 .app-header__title {
   margin: 0;
-  color: #d8232a; /* CeNSE red */
+  color: var(--tenant-accent, #0066cc);
   font-size: clamp(13px, 1.2vw, 17px);
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -1059,7 +1060,7 @@ details.acc-disclose > .acc-disclose-body {
   background: #f0f0f0;
   color: #0f172a;
 }
-/* Stats row that replaces the CeNSE nav items in the second-level bar. */
+/* Stats row in the second-level header bar. */
 .app-header__stats {
   display: inline-flex;
   align-items: baseline;
@@ -1247,11 +1248,11 @@ details.acc-disclose > .acc-disclose-body {
 .export-control__menuitem-label {
   letter-spacing: 0.01em;
 }
-/* Selected default: a red underline tied to the wordmark accent (#d8232a).
+/* Selected default: an underline in the tenant accent color.
    No shaded background — the underline reads on the always-white menu surface
    in both light and dark themes. */
 .export-control__menuitem[data-current="true"] .export-control__menuitem-label {
-  box-shadow: inset 0 -2px 0 0 #d8232a;
+  box-shadow: inset 0 -2px 0 0 var(--tenant-accent, #0066cc);
   padding-bottom: 2px;
 }
 
@@ -1303,7 +1304,7 @@ details.acc-disclose > .acc-disclose-body {
 .app-header__action:hover {
   background: #0f172a;
   border-color: #0f172a;
-  color: #dedddd;
+  color: var(--tenant-header-bg, #dedddd);
 }
 .app-header__action:disabled { opacity: 0.5; cursor: default; }
 .app-header__refreshed {

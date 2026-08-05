@@ -4,11 +4,12 @@
   "description": "A fictional test department instance to validate the multi-tenant architecture. Uses the same core engine with a different data source and branding.",
   "branding": {
     "logo": {
-      "src": "/assets/test-dept/logo.png",
+      "src": "assets/test-dept/logo.svg",
       "alt": "Test Department"
     },
     "title": "TEST DEPARTMENT",
-    "colorAccent": "#1e40af"
+    "colorAccent": "#1e40af",
+    "headerBackground": "#e2e8f0"
   },
   "dataSource": {
     "type": "local",
@@ -22,6 +23,14 @@
       "Research_Verticals": ["Vertical ID", "Research Vertical", "Sector"],
       "Faculty_Verticals": ["Faculty", "Research Vertical"],
       "Collaborations": ["Faculty A", "Faculty B", "Project/Topic"]
+    },
+    "roles": {
+      "platforms": "Platforms",
+      "faculty": "Faculty",
+      "facultyPlatforms": "Faculty_Platforms",
+      "verticals": "Research_Verticals",
+      "facultyVerticals": "Faculty_Verticals",
+      "collaborations": "Collaborations"
     },
     "entityTypes": {
       "faculty": { "label": "Faculty", "searchable": true },

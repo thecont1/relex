@@ -5,6 +5,9 @@ dist
 .DS_Store
 .qodo
 *.tsbuildinfo
-CeNSE_Master_Ecosystem_Dataset.xlsx
+# Tenant workbooks are client data — never commit them.
+tenants/*/public/data/*.xlsx
+!tenants/test-dept/public/data/*.xlsx
 
 DESIGN_PLAN_2026AUG.md
+.playwright-mcp

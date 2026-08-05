@@ -42,8 +42,10 @@ When a core engine update ships:
    bun run build:all
    ```
 
-   This runs `build:cense` and `build:test-dept` (and any other tenants)
-   sequentially, producing fresh `dist/{slug}/` outputs.
+   This discovers every tenant under `tenants/` (any folder containing a
+   `tenant.config.json`) and builds each one sequentially via
+   `scripts/build-all.ts`, producing fresh `dist/{slug}/` outputs. New
+   tenants are picked up automatically — no `package.json` changes needed.
 
 4. Deploy each tenant's `dist/{slug}/` to its respective hosting environment.
 

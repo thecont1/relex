@@ -15,7 +15,7 @@
  */
 import { useEffect, useState } from 'react';
 import { searchFaculty } from '../lib/buildGraph';
-import { tenantConfig } from '../tenant/config';
+import { tenantConfig, resolveAssetUrl } from '../tenant/config';
 import { ExportControl } from './ExportControl';
 import type { GraphModel } from '../lib/types';
 
@@ -79,7 +79,7 @@ export function AppHeader({
       <div className="app-header__top">
         <img
           className="app-header__logo"
-          src={branding.logo.src}
+          src={resolveAssetUrl(branding.logo.src)}
           alt={branding.logo.alt}
           draggable={false}
         />
