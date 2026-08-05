@@ -145,3 +145,18 @@ export function getTenantConfig(): TenantConfig {
 }
 
 export const tenantConfig = config;
+
+/**
+ * Resolves a tenant asset path (e.g. the logo) against the app's base URL.
+ *
+ * The app builds with a relative base (`base: './'`) so it can be mounted
+ * under any subpath. A leading-slash asset path would resolve against the
+ * origin root and break under a subpath mount, so config values are
+ * root-relative logical paths that must be resolved through this helper
+ * before reaching the DOM. Leading slashes are stripped defensively.
+ */
+export function resolveAssetUrl(path: string): string {
+  const rel = path.replace(/^\/+/, '');
+  const base = import.meta.env?.BASE_URL ?? './';
+  return base + rel;
+}

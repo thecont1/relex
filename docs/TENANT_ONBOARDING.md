@@ -35,7 +35,7 @@ Edit `tenants/my-new-client/tenant.config.json`:
 | `name` | Full display name for the app (used in `<title>` and meta) |
 | `description` | Meta description for SEO/intranet indexing |
 | `branding.title` | Header title text (e.g. `DEPARTMENT OF COMPUTER SCIENCE`) |
-| `branding.logo.src` | Path to the logo image under `tenants/{slug}/public/assets/` |
+| `branding.logo.src` | Relative path (no leading `/`) to the logo image under `tenants/{slug}/public/` (e.g. `assets/{slug}/logo.png`). Resolved against the app base URL at runtime, so it works under any mount path. |
 | `branding.logo.alt` | Alt text for the logo |
 | `branding.colorAccent` | Primary accent color (hex) |
 | `branding.headerBackground` | (Optional) Header background color (hex). Defaults to `#dedddd`. |

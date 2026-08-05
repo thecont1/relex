@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react';
 import { searchEntities } from '../../lib/buildGraph';
-import { tenantConfig } from '../../tenant/config';
+import { tenantConfig, resolveAssetUrl } from '../../tenant/config';
 import type { GraphModel, NodeType } from '../../lib/types';
 
 interface Props {
@@ -39,7 +39,7 @@ export function MobileTopBar({ graph, searchQuery, onSearch, onSearchFocusNode, 
           {branding.logo.src && (
             <img
               className="mobile-top-bar__logo"
-              src={branding.logo.src}
+              src={resolveAssetUrl(branding.logo.src)}
               alt={branding.logo.alt}
               draggable={false}
             />

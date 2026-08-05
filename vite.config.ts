@@ -87,6 +87,14 @@ function validateTenantConfig(config: TenantConfig, slug: string): void {
   need(!!config.branding?.title, 'branding.title is required');
   need(!!config.branding?.colorAccent, 'branding.colorAccent is required');
   need(!!config.branding?.logo?.src, 'branding.logo.src is required');
+  if (config.branding?.logo?.src) {
+    // The app deploys with a relative base (base: './') so it can be mounted
+    // under any subpath. A leading-slash logo path would resolve against the
+    // origin root and break under a subpath mount. It is resolved against
+    // import.meta.env.BASE_URL at runtime (see resolveAssetUrl).
+    need(!config.branding.logo.src.startsWith('/'),
+      'branding.logo.src must be a relative path (no leading "/") — the app deploys with a relative base and mounts under arbitrary subpaths');
+  }
 
   need(config.dataSource?.type === 'local' || config.dataSource?.type === 'remote',
     'dataSource.type must be "local" or "remote"');
